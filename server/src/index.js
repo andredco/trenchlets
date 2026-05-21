@@ -15,6 +15,7 @@ import { getTier } from "./tier.js";
 import { getLeaderboard, getHouseStandings, currentEpochIdx } from "./contributions.js";
 import { startPriceFeed, getSnapshot } from "./prices.js";
 import { attachWS } from "./ws.js";
+import { adminRouter } from "./admin/routes.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 3000;
@@ -87,6 +88,9 @@ app.get("/api/tier/:wallet", async (req, res) => {
 app.get("/api/prices", (req, res) => {
   res.json(getSnapshot());
 });
+
+// ---- ADMIN ----
+app.use("/admin", adminRouter());
 
 // ---- STATIC FRONTEND ----
 // Serve the Vite build (../dist). Falls back to index.html only for
