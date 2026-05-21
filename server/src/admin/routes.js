@@ -23,6 +23,16 @@ import { setEpochAnchor, getEpochAnchor, currentEpochIdx } from "../epoch.js";
 export function adminRouter() {
   const r = Router();
 
+  // ---- HTML dashboard (unauthenticated shell) ----
+  // The page itself is just a static shell with a token input. No data is
+  // exposed without a valid x-admin-token; every API call below is gated.
+  // We register the HTML route BEFORE the auth middleware so visitors can
+  // actually reach the login form.
+  r.get("/", (req, res) => {
+    res.set("content-type", "text/html").send(ADMIN_HTML);
+  });
+
+  // ---- Auth gate (applies to everything below) ----
   r.use((req, res, next) => {
     const token = req.headers["x-admin-token"] || req.query.token;
     if (!process.env.ADMIN_TOKEN) {
@@ -187,11 +197,6 @@ export function adminRouter() {
       anchorIso: new Date(getEpochAnchor()).toISOString(),
       epoch: currentEpochIdx(),
     });
-  });
-
-  // HTML dashboard
-  r.get("/", (req, res) => {
-    res.set("content-type", "text/html").send(ADMIN_HTML);
   });
 
   return r;
