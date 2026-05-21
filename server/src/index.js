@@ -206,6 +206,7 @@ app.post("/api/proposals", async (req, res) => {
 });
 
 // ---- ADMIN ----
+// Mount the router (handles /admin/api/*, /admin/, etc).
 app.use("/admin", adminRouter());
 
 // ---- LEGACY REDIRECT ----
@@ -219,7 +220,7 @@ app.get(["/play", "/play.html"], (req, res) => res.redirect(301, "/world"));
 // → world.html, /docs → docs.html automatically.
 app.use(express.static(DIST_DIR, { extensions: ["html"] }));
 app.get("*", (req, res, next) => {
-  if (req.path.startsWith("/api") || req.path.startsWith("/ws")) return next();
+  if (req.path.startsWith("/api") || req.path.startsWith("/ws") || req.path.startsWith("/admin")) return next();
   if (req.path.endsWith(".html") || req.path.includes(".")) return next();
   res.sendFile(path.join(DIST_DIR, "index.html"));
 });
