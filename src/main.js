@@ -58,7 +58,7 @@ const canvas = $("#gameCanvas");
 const minimap = $("#minimap");
 const splash = $("#splash");
 const enterButton = $("#enterButton");
-// guestButton was removed — Trenchlets is wallet-gated now.
+const guestButton = $("#guestButton");
 const walletButton = $("#walletButton");
 const walletLabel = $("#walletLabel");
 const muteButton = $("#muteButton");
@@ -582,7 +582,7 @@ function joinCommunity(communityId) {
     });
     return;
   }
-  setPlayerCommunity(communityId, false);
+  setPlayerCommunity(communityId);
   pushNotification({
     type: "community",
     title: `JOINED ${community.name.toUpperCase()}`,
@@ -601,11 +601,12 @@ function joinCommunity(communityId) {
 
 function contributeAtBoard(communityId, taskId) {
   const me = getMe?.();
+  // Wallet-and-signed-in required to play the boards. Guests get blocked here.
   if (!state.player.wallet || !me?.authed) {
     pushNotification({
       type: "event",
       title: "WALLET REQUIRED",
-      text: "Sign in with your Solana wallet to play the boards.",
+      text: "Connect a Solana wallet and sign in to play the boards.",
     });
     return;
   }
@@ -901,6 +902,9 @@ function updateIdentityHud() {
     identityDot.style.background = p.community.color;
     chatPrefix.textContent = `${p.community.ticker.toLowerCase()}>`;
     chatPrefix.style.color = p.community.color;
+  } else if (p.guest) {
+    identityName.textContent = "GUEST";
+    identityMeta.textContent = "Connect a wallet to claim a house";
   } else if (!p.wallet) {
     identityName.textContent = "NOT SIGNED IN";
     identityMeta.textContent = "Connect a wallet to enter";
@@ -1092,18 +1096,35 @@ function escape(value) {
 
 // =================== WALLET ===================
 
-walletButton.addEventListener("click", connectWallet);
+walletButton.addEventListener("click", async () => {
+  const ok = await connectWallet();
+  if (ok && state.ui.splashOpen) closeSplash();
+});
 
 // Returns true on a fully-signed sign-in, false otherwise. The splash
-// only closes when this returns true. No demo-wallet fallback in
-// production: if Phantom isn't installed, we tell the user.
+// only closes when this returns true.
+//
+// Desktop + extension: window.solana is the Phantom provider.
+// Desktop + no extension: open phantom.app/download in a new tab.
+// Mobile: deep-link into the Phantom app's in-app browser.
 async function connectWallet() {
-  const provider = window.solana;
+  // Phantom provider can also live at window.phantom.solana on newer versions.
+  const provider = window.phantom?.solana || window.solana;
   if (!provider?.isPhantom) {
+    // No Phantom detected. Help the user install it.
+    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    if (isMobile) {
+      // Mobile: redirect through Phantom's deep-link browser so the wallet opens in-app.
+      const url = encodeURIComponent(window.location.href);
+      window.location.href = `https://phantom.app/ul/browse/${url}?ref=${url}`;
+    } else {
+      // Desktop: open the Phantom install page in a new tab.
+      window.open("https://phantom.app/download", "_blank", "noopener");
+    }
     pushNotification({
       type: "event",
       title: "PHANTOM REQUIRED",
-      text: "Install Phantom (phantom.app) to enter Trenchlets.",
+      text: "Install Phantom (phantom.app) and refresh. You can play as guest in the meantime.",
     });
     return false;
   }
@@ -1112,7 +1133,7 @@ async function connectWallet() {
     const resp = await provider.connect();
     wallet = resp.publicKey.toString();
   } catch {
-    pushNotification({ type: "event", title: "WALLET CANCELLED", text: "Approve the wallet connect in Phantom to enter." });
+    pushNotification({ type: "event", title: "WALLET CANCELLED", text: "Approve the wallet connect in Phantom to continue." });
     return false;
   }
   // Server-side sign-in: nonce → sign → verify → session token.
@@ -1133,7 +1154,7 @@ async function connectWallet() {
     const expiresAt = Date.now() + 60 * 60 * 1000;
     mpSaveSession(token, wallet, expiresAt);
     setWallet(wallet);
-    // Re-handshake the websocket so server upgrades us from anonymous to authed.
+    state.player.guest = false;
     mp.send("hello", { wallet, hardwareId: null, sessionToken: token });
     pushNotification({
       type: "community",
@@ -1144,8 +1165,8 @@ async function connectWallet() {
     updateIdentityHud();
     saveState();
     return true;
-  } catch {
-    // Disconnect Phantom so future clicks re-prompt.
+  } catch (err) {
+    console.warn("sign-in failed:", err);
     try { await provider.disconnect(); } catch {}
     pushNotification({
       type: "event",
@@ -1179,26 +1200,38 @@ function bs58Encode(bytes) {
 }
 
 // =================== SPLASH / ENTER ===================
-// Wallet-gated. Pressing the splash button triggers connectWallet().
-// Only on a successful sign-in does the splash close. No guest mode.
+// Two paths: connect a Solana wallet (full game), or enter as guest
+// (browse + chat only). Wallet path is wallet sign-in (nonce → sig → token).
 
 enterButton.addEventListener("click", async () => {
-  // Block double-clicks while a sign-in is in flight.
   if (enterButton.disabled) return;
   enterButton.disabled = true;
+  const original = enterButton.textContent;
   enterButton.textContent = "CONNECTING…";
   try {
     const ok = await connectWallet();
     if (ok) {
       closeSplash();
     } else {
-      enterButton.textContent = "CONNECT WALLET TO ENTER";
+      enterButton.textContent = original;
       enterButton.disabled = false;
     }
-  } catch {
-    enterButton.textContent = "CONNECT WALLET TO ENTER";
+  } catch (err) {
+    console.warn("connectWallet error", err);
+    enterButton.textContent = original;
     enterButton.disabled = false;
   }
+});
+
+guestButton.addEventListener("click", () => {
+  // Guest: browse + chat + watch only. No wallet, no contributions allowed.
+  state.player.guest = true;
+  closeSplash();
+  pushNotification({
+    type: "event",
+    title: "GUEST MODE",
+    text: "Walking as a guest. Connect a wallet to claim a house and earn yield.",
+  });
 });
 
 function closeSplash() {
@@ -1301,7 +1334,7 @@ function formatHuman(value) {
 
 function getPlayerHandle() {
   if (state.player.community) return state.player.community.ticker.toLowerCase() + "_you";
-  return "trenchlet";
+  return state.player.guest ? "guest" : "trenchlet";
 }
 
 function shortWallet(wallet) {
@@ -1443,7 +1476,7 @@ function renderSimpleView() {
   const tier = player.tier;
   const remaining = Math.max(0, claimUnlockAt() - Date.now());
   lines.push("== YOU ==");
-  lines.push(`Identity: ${player.community ? player.community.name : (player.wallet ? "UNCLAIMED" : "NOT SIGNED IN")}`);
+  lines.push(`Identity: ${player.community ? player.community.name : (player.guest ? "GUEST" : (player.wallet ? "UNCLAIMED" : "NOT SIGNED IN"))}`);
   lines.push(`Wallet: ${player.wallet ? shortWallet(player.wallet) : "—"}`);
   lines.push(`Tier: ${tier.label} (${formatHuman(player.pumptownBalance)} TRENCHLETS)`);
   lines.push(`Unclaimed share: ${formatCurrency(player.unclaimedShare)}`);
