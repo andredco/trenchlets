@@ -1127,13 +1127,16 @@ async function connectWallet() {
     return false;
   }
   const adapter = picked.adapter;
-  console.log("[connectWallet] picked:", adapter.name, "ready:", adapter.readyState);
+  console.log("[connectWallet] picked:", adapter.name, "ready:", adapter.readyState, "already connected:", adapter.connected);
 
-  // 1. Connect — opens the wallet UI.
+  // 1. Always force a fresh connect so the user sees a popup. If the adapter
+  //    is already in a connected state from a previous session, disconnect
+  //    first so signMessage doesn't silently fail with stale trust.
+  if (adapter.connected) {
+    try { await adapter.disconnect(); } catch {}
+  }
   try {
-    if (!adapter.connected) {
-      await adapter.connect();
-    }
+    await adapter.connect();
   } catch (err) {
     console.warn("[connectWallet] connect rejected:", err);
     pushNotification({
@@ -1147,24 +1150,75 @@ async function connectWallet() {
   const wallet = adapter.publicKey?.toString();
   if (!wallet) {
     console.warn("[connectWallet] no public key after connect");
+    pushNotification({
+      type: "event",
+      title: "WALLET ERROR",
+      text: `${adapter.name} didn't return a public key. Try refreshing.`,
+    });
     return false;
   }
   console.log("[connectWallet] connected:", wallet);
 
   // 2. Server sign-in: nonce → sign → verify → token.
+  let nonceMessage;
   try {
     const nonceRes = await fetch(`/api/auth/nonce?wallet=${encodeURIComponent(wallet)}`);
-    if (!nonceRes.ok) throw new Error("nonce fetch failed");
+    if (!nonceRes.ok) throw new Error(`nonce fetch failed (${nonceRes.status})`);
     const { message } = await nonceRes.json();
-    const encoded = new TextEncoder().encode(message);
-    const sigBytes = await adapter.signMessage(encoded);
+    nonceMessage = message;
+    console.log("[connectWallet] got nonce, requesting signature…");
+  } catch (err) {
+    console.warn("[connectWallet] nonce fetch failed:", err);
+    pushNotification({
+      type: "event",
+      title: "SERVER UNREACHABLE",
+      text: "Couldn't reach the Trenchlets server. Try again in a moment.",
+    });
+    return false;
+  }
+
+  // 3. Sign — this is what was silently failing. Wrap in a tight error path.
+  let sigBytes;
+  try {
+    if (typeof adapter.signMessage !== "function") {
+      throw new Error(`${adapter.name} doesn't expose signMessage`);
+    }
+    const encoded = new TextEncoder().encode(nonceMessage);
+    sigBytes = await adapter.signMessage(encoded);
+    console.log("[connectWallet] signature received, length:", sigBytes?.length);
+    if (!sigBytes || (sigBytes.length !== 64 && sigBytes.length !== 65)) {
+      throw new Error("invalid signature length");
+    }
+  } catch (err) {
+    console.warn("[connectWallet] signMessage failed:", err);
+    try { await adapter.disconnect(); } catch {}
+    const msg = err?.message || String(err);
+    let userMsg = `Sign the message in ${adapter.name} to prove you own the wallet.`;
+    if (/user reject|reject|denied|cancelled/i.test(msg)) {
+      userMsg = "Signature rejected. You need to sign to enter.";
+    } else if (/popup|blocked/i.test(msg)) {
+      userMsg = `Popup blocked. Click the ${adapter.name} extension icon to approve.`;
+    }
+    pushNotification({
+      type: "event",
+      title: "SIGNATURE FAILED",
+      text: userMsg,
+    });
+    return false;
+  }
+
+  // 4. Verify on the server.
+  try {
     const sigB58 = bs58.encode(sigBytes);
     const verifyRes = await fetch("/api/auth/verify", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ wallet, signature: sigB58 }),
     });
-    if (!verifyRes.ok) throw new Error("signature rejected");
+    if (!verifyRes.ok) {
+      const txt = await verifyRes.text();
+      throw new Error(`verify rejected: ${txt}`);
+    }
     const { token, player } = await verifyRes.json();
     const expiresAt = Date.now() + 60 * 60 * 1000;
     mpSaveSession(token, wallet, expiresAt);
@@ -1181,12 +1235,12 @@ async function connectWallet() {
     saveState();
     return true;
   } catch (err) {
-    console.warn("sign-in failed:", err);
+    console.warn("[connectWallet] server verify failed:", err);
     try { await adapter.disconnect(); } catch {}
     pushNotification({
       type: "event",
-      title: "SIGNATURE REQUIRED",
-      text: `Sign the message in ${adapter.name} to prove you own the wallet.`,
+      title: "SERVER REJECTED",
+      text: "Signature didn't verify. Try again.",
     });
     return false;
   }
