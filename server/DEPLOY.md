@@ -63,7 +63,7 @@ After the deploy finishes:
 - `https://trenchlets.fun/health` → should return `{ "ok": true, "epoch": <int> }`
 - `https://trenchlets.fun/api/standings` → should return `{ "epoch": <int>, "standings": [] }` (empty until players contribute)
 - `https://trenchlets.fun/` → loads the landing page
-- Open the browser dev tools network tab, navigate to `/play.html`, and
+- Open the browser dev tools network tab, navigate to `/world`, and
   confirm a websocket connects to `wss://trenchlets.fun/ws`
 
 ## Migrations

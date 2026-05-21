@@ -39,9 +39,6 @@
           <button id="dashboardButton" class="mini-button" type="button" title="Tasks & houses">
             DASH
           </button>
-          <button id="simpleButton" class="mini-button" type="button" title="Toggle text mirror" aria-pressed="false">
-            SIMPLE
-          </button>
           <button id="meetingButton" class="mini-button" type="button" title="Town meeting">
             MEETING
           </button>
@@ -207,15 +204,6 @@
       </main>
     </div>
 
-    <aside class="simple-panel" id="simplePanel" hidden aria-label="Simple text view">
-      <header class="simple-head">
-        <small>SIMPLE VIEW</small>
-        <h3>Trenchlets in plain text</h3>
-        <button class="modal-close" type="button" id="simpleClose" aria-label="Close">×</button>
-      </header>
-      <div class="simple-body" id="simpleBody"></div>
-    </aside>
-
     <div class="modal" id="helpModal" hidden>
       <div class="modal-shade" data-close></div>
       <div class="modal-frame wide" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
@@ -256,9 +244,9 @@
           </article>
           <article>
             <span class="help-num">04</span>
-            <h3>12 hour claim lock</h3>
+            <h3>3 hour claim lock</h3>
             <p>
-              Realistically, nobody should be getting paid in the first 12 hours.
+              Realistically, nobody should be getting paid in the first 3 hours.
               Your share <b>accumulates</b> but the vault won't release it until
               the lock expires from your first play. House vaults still grow
               meanwhile.
@@ -290,15 +278,6 @@
               The on-chain vault address is a multisig the founder controls and
               cannot be drained from the client. This frontend never holds
               private keys. Once real money is in there, no one can siphon it.
-            </p>
-          </article>
-          <article>
-            <span class="help-num">08</span>
-            <h3>Simple view + accessibility</h3>
-            <p>
-              Click <b>SIMPLE</b> for a text mirror of everything happening live —
-              vault, houses, events, your share, the next reward window. Same
-              data, accessible format.
             </p>
           </article>
         </div>

@@ -93,6 +93,47 @@ app.get("/api/prices", (req, res) => {
 // ---- TOWN MEETING PROPOSALS ----
 // Players submit through the in-game meeting tab. Stored in Postgres
 // so the admin dashboard can review every proposal across all clients.
+app.get("/api/proposals", async (req, res) => {
+  try {
+    const { query } = await import("./db/pool.js");
+    const rows = (await query(
+      `SELECT id, name, ticker, contract, vote_count, created_at, promoted_at
+       FROM town_proposals
+       ORDER BY vote_count DESC, created_at DESC LIMIT 100`,
+    )).rows;
+    res.json({ proposals: rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/proposals/:id/vote", async (req, res) => {
+  try {
+    const { hardwareId, wallet } = req.body || {};
+    const { resolvePlayer } = await import("./players.js");
+    const { query, getOne } = await import("./db/pool.js");
+    const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").toString().split(",")[0].trim();
+    const submitter = await resolvePlayer({ wallet, hardwareId, ip });
+    const proposalId = parseInt(req.params.id, 10);
+    if (!Number.isFinite(proposalId)) return res.status(400).json({ error: "bad id" });
+    await query(
+      `INSERT INTO town_votes (proposal_id, player_id) VALUES ($1, $2)
+       ON CONFLICT DO NOTHING`,
+      [proposalId, submitter.id],
+    );
+    await query(
+      `UPDATE town_proposals
+       SET vote_count = (SELECT COUNT(*) FROM town_votes WHERE proposal_id = $1)
+       WHERE id = $1`,
+      [proposalId],
+    );
+    const fresh = await getOne("SELECT vote_count FROM town_proposals WHERE id = $1", [proposalId]);
+    res.json({ ok: true, voteCount: fresh?.vote_count ?? 0 });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post("/api/proposals", async (req, res) => {
   try {
     const { name, ticker, contract, hardwareId, wallet } = req.body || {};
@@ -143,9 +184,15 @@ app.post("/api/proposals", async (req, res) => {
 // ---- ADMIN ----
 app.use("/admin", adminRouter());
 
+// ---- LEGACY REDIRECT ----
+// /play.html (and bare /play) → /world. Keeps old bookmarks/shares working.
+app.get(["/play", "/play.html"], (req, res) => res.redirect(301, "/world"));
+
 // ---- STATIC FRONTEND ----
 // Serve the Vite build (../dist). Falls back to index.html only for
-// genuine SPA routes — /play.html and /docs.html serve their own files.
+// genuine SPA routes — /world.html and /docs.html serve their own files.
+// Express's static middleware with `extensions: ["html"]` resolves /world
+// → world.html, /docs → docs.html automatically.
 app.use(express.static(DIST_DIR, { extensions: ["html"] }));
 app.get("*", (req, res, next) => {
   if (req.path.startsWith("/api") || req.path.startsWith("/ws")) return next();

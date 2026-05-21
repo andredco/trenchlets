@@ -100,10 +100,6 @@ const stakeModal = $("#stakeModal");
 const tierLadder = $("#tierLadder");
 const helpButton = $("#helpButton");
 const helpModal = $("#helpModal");
-const simpleButton = $("#simpleButton");
-const simplePanel = $("#simplePanel");
-const simpleBody = $("#simpleBody");
-const simpleClose = $("#simpleClose");
 const meetingButton = $("#meetingButton");
 const meetingModal = $("#meetingModal");
 const proposalForm = $("#proposalForm");
@@ -197,7 +193,7 @@ async function bootEngine() {
   // Restore persistent state now that state.player exists.
   // Personal share and balance come from the server (or on-chain reads),
   // never from localStorage. We only persist firstPlayedAt locally to
-  // gate the 12h claim lock until the server tracks it.
+  // gate the 3h claim lock until the server tracks it.
   if (typeof persistent.firstPlayedAt === "number") setFirstPlayedAt(persistent.firstPlayedAt);
   else {
     persistent.firstPlayedAt = state.player.firstPlayedAt;
@@ -692,7 +688,7 @@ function inspectVault() {
     pushNotification({
       type: "event",
       title: "CLAIM LOCKED",
-      text: `Trenchlets enforces a 12h first-play lock. Unlocks in ${formatLong(remaining)}.`,
+      text: `Trenchlets enforces a 3h first-play lock. Unlocks in ${formatLong(remaining)}.`,
     });
     emitSparkle(state.player.x, state.player.y - 10, "#ff4a6e", 12);
     SFX.click();
@@ -1552,78 +1548,7 @@ if (!persistent.onboarded) {
   saveState();
 }
 
-// =================== SIMPLE VIEW ===================
-
-simpleButton.addEventListener("click", () => {
-  simplePanel.hidden = !simplePanel.hidden;
-  simpleButton.setAttribute("aria-pressed", String(!simplePanel.hidden));
-  if (!simplePanel.hidden) renderSimpleView();
-});
-simpleClose.addEventListener("click", () => {
-  simplePanel.hidden = true;
-  simpleButton.setAttribute("aria-pressed", "false");
-});
-
-setInterval(() => {
-  if (!simplePanel.hidden) renderSimpleView();
-}, 1500);
-
-function renderSimpleView() {
-  const lines = [];
-  const player = state.player;
-  const tier = player.tier;
-  const remaining = Math.max(0, claimUnlockAt() - Date.now());
-  lines.push("== YOU ==");
-  lines.push(`Identity: ${player.community ? player.community.name : (player.guest ? "GUEST" : (player.wallet ? "UNCLAIMED" : "NOT SIGNED IN"))}`);
-  lines.push(`Wallet: ${player.wallet ? shortWallet(player.wallet) : "—"}`);
-  lines.push(`Tier: ${tier.label} (${formatHuman(player.pumptownBalance)} TRENCHLETS)`);
-  lines.push(`Unclaimed share: ${formatCurrency(player.unclaimedShare)}`);
-  lines.push(`Total claimed: ${formatCurrency(player.totalClaimed)}`);
-  lines.push(`Claim unlock: ${claimUnlocked() ? "OPEN" : `in ${formatLong(remaining)}`}`);
-  lines.push("");
-  lines.push("== CENTRAL VAULT ==");
-  lines.push(`Pool: ${formatCurrency(state.vault)} (${state.vaultRate >= 0 ? "+" : ""}${state.vaultRate.toFixed(2)}/s)`);
-  lines.push(`PT Treasury: ${formatCurrency(state.pumptownTreasury)}`);
-  lines.push("");
-  lines.push("== HOUSE VAULTS ==");
-  for (const c of COMMUNITIES) {
-    lines.push(` ${c.ticker.padEnd(10, " ")} ${formatCurrency(state.communityVault[c.id] || 0)}`);
-  }
-  lines.push("");
-  if (state.event.active) {
-    const ev = state.event.active;
-    const left = Math.max(0, state.event.until - state.time.totalMs);
-    lines.push("== WORLD EVENT ==");
-    lines.push(`${ev.title} (${ev.kind || "boon"})`);
-    lines.push(ev.desc);
-    if (state.event.communityId) {
-      const target = COMMUNITIES.find((c) => c.id === state.event.communityId);
-      if (target) lines.push(`Target: ${target.name}`);
-    }
-    lines.push(`Ends in: ${formatTimeShort(left)}`);
-  } else {
-    const next = Math.max(0, state.event.nextAt - state.time.totalMs);
-    lines.push(`Next event in ${formatTimeShort(next)}`);
-  }
-  lines.push("");
-  lines.push("== TASKS (active for your house) ==");
-  const owner = player.community || COMMUNITIES[0];
-  for (const task of TASKS) {
-    const data = state.taskState[owner.id][task.id];
-    const progress = Math.min(100, Math.floor(data.progress));
-    lines.push(` ${task.title}: ${progress}% (${TASK_CATEGORIES[task.category].label})`);
-  }
-  lines.push("");
-  if (state.raidLog.length) {
-    lines.push("== RECENT RAIDS ==");
-    for (const r of state.raidLog.slice(0, 5)) {
-      const a = COMMUNITIES.find((c) => c.id === r.attacker)?.ticker || r.attacker;
-      const t = COMMUNITIES.find((c) => c.id === r.target)?.ticker || r.target;
-      lines.push(` ${a} raided ${t}: ${formatCurrency(r.amount)}`);
-    }
-  }
-  simpleBody.textContent = lines.join("\n");
-}
+// (Simple view removed — was a text mirror of game state, no longer needed.)
 
 // =================== FULLSCREEN ===================
 

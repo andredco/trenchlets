@@ -273,7 +273,7 @@ export const TASKS = [
     id: "citizen-bounty",
     title: "Citizen Bounty",
     category: "claim",
-    short: "Citizens earn a personal slice (subject to the 12h claim lock).",
+    short: "Citizens earn a personal slice (subject to the 3h claim lock).",
     durationMs: 5 * 60 * 60 * 1000,
     cooldownMs: 28 * 60 * 1000,
     minCitizens: 70,
@@ -314,7 +314,7 @@ export const TASK_CATEGORIES = {
   claim: {
     label: "CITIZEN",
     color: "#4ff7ff",
-    blurb: "Active players earn personal share (12h lock on first play).",
+    blurb: "Active players earn personal share (3h lock on first play).",
   },
   protocol: {
     label: "PROTOCOL",
@@ -443,8 +443,8 @@ export function tierIndex(tierId) {
 
 export const STARTING_PUMPTOWN = 25_000;
 
-// 12h first-play lock on personal share claims.
-export const CLAIM_LOCK_MS = 12 * 60 * 60 * 1000;
+// 3h first-play lock on personal share claims (matches the epoch length).
+export const CLAIM_LOCK_MS = 3 * 60 * 60 * 1000;
 
 // =========================================================
 // VAULT + EPOCH (real economy parameters, no mocks)
