@@ -334,7 +334,7 @@ const ADMIN_HTML = `<!doctype html>
           }
         },
         epochs: () => {
-          html += '<thead><tr><th>#</th><th>Started</th><th>Ended</th><th>Vault start</th><th>Vault end</th><th>Drain</th><th>Settled</th></tr></thead><tbody>';
+          html += '<thead><tr><th>#</th><th>Started</th><th>Ended</th><th>Vault start</th><th>Vault end</th><th>Distribution</th><th>Settled</th></tr></thead><tbody>';
           for (const r of rows) {
             html += '<tr>';
             html += '<td><strong style="color:#fff">' + r.idx + '</strong></td>';

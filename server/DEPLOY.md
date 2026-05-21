@@ -125,7 +125,7 @@ isn't accidentally exposed before you're ready.
 
 ## Epoch settlement
 
-Every 6 hours the vault should drain 15% to qualifying $TRENCHLETS holders.
+Every 6 hours the vault should distribute 15% to qualifying $TRENCHLETS holders.
 The settlement script computes the math from the contributions ledger and
 optionally executes the on-chain transfers.
 

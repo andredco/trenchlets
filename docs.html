@@ -88,11 +88,11 @@
           <p>
             Trenchlets is a live pixel-art world where 10 pump.fun communities ("houses") compete for vault yield.
             The whole point: <strong>real coordination &gt; spam</strong>. Skill-based minigames replace farming bots.
-            Every contribution stacks toward your house's share of a vault that drains every 6 hours.
+            Every contribution stacks toward your house's share of a vault that distributes every 6 hours.
           </p>
           <div class="docs-callout">
             <strong>TL;DR</strong> — Pick a house. Walk to its billboard. Press E. Play 10 stages of a minigame.
-            Your score becomes a contribution to your house's yield. Vault drains every 6h, 15% goes to qualifying $TRENCHLETS holders pro-rata.
+            Your score becomes a contribution to your house's yield. Vault distributes every 6h, 15% goes to qualifying $TRENCHLETS holders pro-rata.
           </div>
         </section>
 
@@ -176,7 +176,7 @@
           <h2>House yield</h2>
           <p>
             Yield is your house's accumulated contribution score within the current epoch.
-            When the epoch ends (every 6 hours), houses with higher yield get a bigger share of the vault drain.
+            When the epoch ends (every 6 hours), houses with higher yield get a bigger share of the vault distribution.
           </p>
           <p>
             <strong>It's a team effort.</strong> Every member's contribution stacks. A house of 100 active players doing easy daily plays beats 5 hard-mode whales every time.
@@ -203,14 +203,14 @@
         <section id="epoch">
           <h2>6-hour epochs</h2>
           <p>
-            Every 6 hours, the vault drains <strong>15%</strong> of its current USD value to qualifying holders.
+            Every 6 hours, the vault distributes <strong>15%</strong> of its current USD value to qualifying holders.
             Epoch boundaries are anchored to a fixed launch timestamp — all clients see the same countdown.
           </p>
           <ul class="docs-bullets">
             <li>Epoch length: <strong>6 hours</strong></li>
-            <li>Drain percentage: <strong>15% of vault USD</strong></li>
+            <li>Distribution: <strong>15% of vault USD</strong></li>
             <li>Qualifying floor: <strong>50,000 $TRENCHLETS held</strong></li>
-            <li>Distribution: <strong>pro-rata × tier multiplier</strong></li>
+            <li>Per-wallet split: <strong>pro-rata × tier multiplier</strong></li>
           </ul>
         </section>
 
@@ -233,10 +233,10 @@
         <section id="airdrop">
           <h2>Airdrop math</h2>
           <p>At each epoch close:</p>
-          <pre class="docs-code">drain = vault_usd × 0.15
+          <pre class="docs-code">distribution = vault_usd × 0.15
 qualifying_holders = wallets with ≥ 50K $TRENCHLETS
 weight = balance × tier_multiplier
-share = (your_weight / total_weight) × drain</pre>
+share = (your_weight / total_weight) × distribution</pre>
           <p>House yield doesn't change the airdrop directly — it changes which houses contribute most to the next epoch's vault. The vault grows, and your $TRENCHLETS holding gets you a slice every 6 hours.</p>
         </section>
 
@@ -255,7 +255,7 @@ share = (your_weight / total_weight) × drain</pre>
               <tr><td>Earthquake</td><td>0.5×</td><td>Camera shakes, NPCs panic, contributions halved</td></tr>
               <tr><td>Locust Swarm</td><td>0.7×</td><td>Treasury rate halved</td></tr>
               <tr><td>Lightning Storm</td><td>0.6×</td><td>Random house progress freezes</td></tr>
-              <tr><td>House Fire</td><td>0.3×</td><td>House drains until citizens douse it (E at burning billboard)</td></tr>
+              <tr><td>House Fire</td><td>0.3×</td><td>House yield bleeds until citizens douse it (E at burning billboard)</td></tr>
             </tbody>
           </table>
         </section>
