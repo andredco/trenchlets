@@ -44,6 +44,8 @@ import { SFX, setMuted } from "./audio.js";
 import { bakeCharacterHD, makeCharacterPalette, HAIR_COLORS, SKIN_TONES } from "./sprites.js";
 import { launchMinigame, isMinigameActive, getMinigameCooldown } from "./minigames/index.js";
 import { getMultiplayer, getPlayerId, MSG, saveSession as mpSaveSession, getDisplayName as mpGetDisplayName, setDisplayName as mpSetDisplayName, getMe } from "./multiplayer.js";
+import { pickWallet } from "./wallet-picker.js";
+import { listAvailableWallets } from "./wallets.js";
 
 const mp = getMultiplayer();
 
@@ -1112,38 +1114,45 @@ walletButton.addEventListener("click", async () => {
 // Desktop + no extension: open phantom.app/download in a new tab.
 // Mobile: deep-link into the Phantom app's in-app browser.
 async function connectWallet() {
-  // Phantom provider can also live at window.phantom.solana on newer versions.
-  const provider = window.phantom?.solana || window.solana;
-  console.log("[connectWallet] provider:", provider, "isPhantom:", provider?.isPhantom, "userAgent:", navigator.userAgent);
-  if (!provider?.isPhantom) {
-    // No Phantom detected. Help the user install it.
-    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-    if (isMobile) {
-      // Mobile: redirect through Phantom's deep-link browser so the wallet opens in-app.
-      const url = encodeURIComponent(window.location.href);
-      window.location.href = `https://phantom.app/ul/browse/${url}?ref=${url}`;
-    } else {
-      // Desktop: open the Phantom install page in a new tab.
-      window.open("https://phantom.app/download", "_blank", "noopener");
-    }
+  // Show the wallet picker (or auto-pick if exactly one is installed).
+  const installed = listAvailableWallets().filter((w) => w.available);
+  console.log("[connectWallet] installed wallets:", installed.map((w) => w.id));
+
+  if (installed.length === 0) {
+    // Nothing installed — picker will show install links.
+  }
+
+  const picked = await pickWallet();
+  if (!picked) {
+    console.log("[connectWallet] picker cancelled");
+    return false;
+  }
+  const { wallet: walletDef, provider } = picked;
+  console.log("[connectWallet] picked:", walletDef.id, "provider:", provider);
+
+  if (!provider) {
     pushNotification({
       type: "event",
-      title: "PHANTOM REQUIRED",
-      text: "Install Phantom (phantom.app) and refresh. You can play as guest in the meantime.",
+      title: `${walletDef.name.toUpperCase()} REQUIRED`,
+      text: `Install ${walletDef.name} and refresh.`,
     });
     return false;
   }
-  console.log("[connectWallet] requesting connect…");
+
   let wallet;
   try {
     const resp = await provider.connect();
-    wallet = resp.publicKey.toString();
+    // Different wallets put publicKey in slightly different places.
+    const pubkey = resp?.publicKey || provider.publicKey;
+    wallet = pubkey?.toString?.() || pubkey;
+    if (!wallet) throw new Error("no public key returned");
     console.log("[connectWallet] connected:", wallet);
   } catch (err) {
     console.warn("[connectWallet] connect rejected:", err);
-    pushNotification({ type: "event", title: "WALLET CANCELLED", text: "Approve the wallet connect in Phantom to continue." });
+    pushNotification({ type: "event", title: "WALLET CANCELLED", text: `Approve the connection in ${walletDef.name}.` });
     return false;
   }
+
   // Server-side sign-in: nonce → sign → verify → session token.
   try {
     const nonceRes = await fetch(`/api/auth/nonce?wallet=${encodeURIComponent(wallet)}`);
@@ -1151,7 +1160,9 @@ async function connectWallet() {
     const { message } = await nonceRes.json();
     const encoded = new TextEncoder().encode(message);
     const signed = await provider.signMessage(encoded, "utf8");
-    const sigB58 = bs58Encode(signed.signature);
+    // Different wallets return signature in different shapes.
+    const sigBytes = signed?.signature || signed;
+    const sigB58 = bs58Encode(sigBytes instanceof Uint8Array ? sigBytes : new Uint8Array(sigBytes));
     const verifyRes = await fetch("/api/auth/verify", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -1179,7 +1190,7 @@ async function connectWallet() {
     pushNotification({
       type: "event",
       title: "SIGNATURE REQUIRED",
-      text: "Sign the message in Phantom to prove you own the wallet.",
+      text: `Sign the message in ${walletDef.name} to prove you own the wallet.`,
     });
     return false;
   }
