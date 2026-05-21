@@ -1,0 +1,13 @@
+# Trenchlets settler · Railway service.
+# This service runs in a loop, sleeping until the next 6h epoch
+# boundary. It signs swaps + transfers with the vault keypair, so
+# it MUST run as its own Railway service with no public network
+# routes — the web service should never have access to VAULT_KEYPAIR.
+
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "npm run migrate && npm start"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

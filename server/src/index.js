@@ -16,6 +16,7 @@ import { getLeaderboard, getHouseStandings, currentEpochIdx } from "./contributi
 import { startPriceFeed, getSnapshot } from "./prices.js";
 import { attachWS } from "./ws.js";
 import { adminRouter } from "./admin/routes.js";
+import { seedCommunityMeta } from "./seedCommunities.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 3000;
@@ -105,10 +106,12 @@ app.get("*", (req, res, next) => {
 // ---- HTTP + WS ----
 const server = http.createServer(app);
 attachWS(server);
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log(`Trenchlets server listening on :${PORT}`);
   console.log(`Static frontend: ${DIST_DIR}`);
   console.log(`Epoch: ${currentEpochIdx()}`);
+  try { await seedCommunityMeta(); }
+  catch (err) { console.warn("seed community_meta failed:", err.message); }
   if (TRACK_MINTS.length > 0) {
     console.log(`Tracking ${TRACK_MINTS.length} token mints for prices`);
     startPriceFeed(TRACK_MINTS);
