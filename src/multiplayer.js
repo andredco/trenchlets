@@ -42,6 +42,9 @@ export function getDisplayName() {
 
 export function setDisplayName(name) {
   localStorage.setItem(NAME_KEY, name);
+  // Try to send immediately; if the websocket isn't open or hasn't
+  // welcomed us yet, the value lives in localStorage and gets replayed
+  // by sendHello() on the next connection.
   send("rename", { name });
 }
 

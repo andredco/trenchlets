@@ -103,7 +103,7 @@ export function attachWS(server) {
 
       // HELLO must come first.
       if (type === TYPES.HELLO) {
-        const { wallet, hardwareId, sessionToken } = payload || {};
+        const { wallet, hardwareId, sessionToken, displayName } = payload || {};
         let authed = null;
         if (wallet && sessionToken) {
           const s = getSession(sessionToken);
@@ -114,6 +114,16 @@ export function attachWS(server) {
           hardwareId,
           ip: ctx.ip,
         });
+        // If the client sent a displayName (e.g. guest typed one before WS
+        // was even welcomed), apply it now. setDisplayName sanitizes input.
+        if (displayName && typeof displayName === "string") {
+          try {
+            const clean = await setDisplayName(player.id, displayName);
+            player.display_name = clean;
+          } catch {
+            /* ignore invalid name; keep the existing one */
+          }
+        }
         ctx.player = player;
         ctx.authed = !!authed;
 

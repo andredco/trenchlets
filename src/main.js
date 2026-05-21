@@ -1125,12 +1125,24 @@ async function connectWallet() {
   const adapter = picked.adapter;
   console.log("[connectWallet] picked:", adapter.name, "ready:", adapter.readyState, "already connected:", adapter.connected);
 
-  // 1. Always force a fresh connect so the user sees a popup. If the adapter
-  //    is already in a connected state from a previous session, disconnect
-  //    first so signMessage doesn't silently fail with stale trust.
-  if (adapter.connected) {
-    try { await adapter.disconnect(); } catch {}
+  // 1. Force a visible connect prompt. The adapter normally short-circuits
+  //    if the site is already trusted (Phantom's `isConnected` is true on
+  //    reload), which means no popup ever appears. We bypass that by:
+  //      - disconnecting both at the adapter level AND on the underlying
+  //        provider so Phantom flips its `isConnected` flag to false
+  //      - then calling adapter.connect(), which will see `isConnected:false`
+  //        and trigger the actual wallet UI
+  try { await adapter.disconnect(); } catch {}
+  try {
+    const rawProvider = window.phantom?.solana || window.solana;
+    if (rawProvider && typeof rawProvider.disconnect === "function" && rawProvider.isConnected) {
+      await rawProvider.disconnect();
+    }
+  } catch (err) {
+    console.warn("[connectWallet] raw disconnect failed (non-fatal):", err);
   }
+  // Small breath so Phantom's internal state actually flips before we ask again.
+  await new Promise((r) => setTimeout(r, 60));
   try {
     await adapter.connect();
   } catch (err) {
