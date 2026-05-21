@@ -1,0 +1,262 @@
+{
+  "grass": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "grass_thick": {
+    "x": 96,
+    "y": 0,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "grass_dark": {
+    "x": 192,
+    "y": 0,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "stone": {
+    "x": 288,
+    "y": 0,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "plaza": {
+    "x": 384,
+    "y": 0,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "sand": {
+    "x": 480,
+    "y": 0,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "water": {
+    "x": 0,
+    "y": 96,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "water_edge": {
+    "x": 96,
+    "y": 96,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "water_sand": {
+    "x": 192,
+    "y": 96,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "dirt": {
+    "x": 288,
+    "y": 96,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "dirt_grass": {
+    "x": 384,
+    "y": 96,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "dirt_thick": {
+    "x": 480,
+    "y": 96,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "pad_gray": {
+    "x": 0,
+    "y": 192,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "pad_red": {
+    "x": 96,
+    "y": 192,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "pad_blue": {
+    "x": 192,
+    "y": 192,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "pad_green": {
+    "x": 288,
+    "y": 192,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "pad_purple": {
+    "x": 384,
+    "y": 192,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "pad_gold": {
+    "x": 480,
+    "y": 192,
+    "w": 96,
+    "h": 96,
+    "drawW": 16,
+    "drawH": 16,
+    "footX": 0,
+    "footY": 16
+  },
+  "longgrass0": {
+    "x": 0,
+    "y": 288,
+    "w": 64,
+    "h": 80,
+    "drawW": 24,
+    "drawH": 30,
+    "footX": 12,
+    "footY": 28
+  },
+  "longgrass1": {
+    "x": 64,
+    "y": 288,
+    "w": 64,
+    "h": 80,
+    "drawW": 24,
+    "drawH": 30,
+    "footX": 12,
+    "footY": 28
+  },
+  "longgrass2": {
+    "x": 128,
+    "y": 288,
+    "w": 64,
+    "h": 80,
+    "drawW": 24,
+    "drawH": 30,
+    "footX": 12,
+    "footY": 28
+  },
+  "longgrass3": {
+    "x": 192,
+    "y": 288,
+    "w": 64,
+    "h": 80,
+    "drawW": 24,
+    "drawH": 30,
+    "footX": 12,
+    "footY": 28
+  },
+  "longgrass4": {
+    "x": 256,
+    "y": 288,
+    "w": 64,
+    "h": 80,
+    "drawW": 24,
+    "drawH": 30,
+    "footX": 12,
+    "footY": 28
+  },
+  "longgrass5": {
+    "x": 320,
+    "y": 288,
+    "w": 64,
+    "h": 80,
+    "drawW": 24,
+    "drawH": 30,
+    "footX": 12,
+    "footY": 28
+  },
+  "longgrass6": {
+    "x": 384,
+    "y": 288,
+    "w": 64,
+    "h": 80,
+    "drawW": 24,
+    "drawH": 30,
+    "footX": 12,
+    "footY": 28
+  },
+  "longgrass7": {
+    "x": 448,
+    "y": 288,
+    "w": 64,
+    "h": 80,
+    "drawW": 24,
+    "drawH": 30,
+    "footX": 12,
+    "footY": 28
+  }
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "triplet",
+    "dex": "https://dexscreener.com/solana/2kmu2twwkt9k1pkqlvi7ddlrffox7ghezzwakiynqypk",
+    "api": "https://api.dexscreener.com/latest/dex/pairs/solana/2kmu2twwkt9k1pkqlvi7ddlrffox7ghezzwakiynqypk",
+    "imageUrl": "https://cdn.dexscreener.com/cms/images/57ca24e2f2447e0baaa8a236599e31b020bc8bf6443e557fdf5e78f3e1fd5754?width=800&height=800&quality=95&format=auto",
+    "usedImageUrl": "https://cdn.dexscreener.com/cms/images/57ca24e2f2447e0baaa8a236599e31b020bc8bf6443e557fdf5e78f3e1fd5754?width=800&height=800&quality=95&format=auto"
+  },
+  {
+    "id": "troll",
+    "dex": "https://dexscreener.com/solana/4w2cysotx6czaugmmwg13hdpy4qemg2czekyeqyk9ama",
+    "api": "https://api.dexscreener.com/latest/dex/pairs/solana/4w2cysotx6czaugmmwg13hdpy4qemg2czekyeqyk9ama",
+    "imageUrl": "https://cdn.dexscreener.com/cms/images/tLIgpz8Fa_O1THOX?width=800&height=800&quality=95&format=auto",
+    "usedImageUrl": "https://cdn.dexscreener.com/cms/images/tLIgpz8Fa_O1THOX?width=800&height=800&quality=95&format=auto"
+  },
+  {
+    "id": "chillhouse",
+    "dex": "https://dexscreener.com/solana/35tqqmeirwebk6fr5qipwastuaavo32vjnuljpxvsxuk",
+    "api": "https://api.dexscreener.com/latest/dex/pairs/solana/35tqqmeirwebk6fr5qipwastuaavo32vjnuljpxvsxuk",
+    "imageUrl": "https://cdn.dexscreener.com/cms/images/iDU0mkqljEOs6Qbx?width=800&height=800&quality=95&format=auto",
+    "usedImageUrl": "https://cdn.dexscreener.com/cms/images/iDU0mkqljEOs6Qbx?width=800&height=800&quality=95&format=auto"
+  },
+  {
+    "id": "unc",
+    "dex": "https://dexscreener.com/solana/bwfzkx1pmpvwxammwtrizvowzzzgifeyuyw6ee51shly",
+    "api": "https://api.dexscreener.com/latest/dex/pairs/solana/bwfzkx1pmpvwxammwtrizvowzzzgifeyuyw6ee51shly",
+    "imageUrl": "https://cdn.dexscreener.com/cms/images/K_-MXPU8k2HSUxmG?width=800&height=800&quality=95&format=auto",
+    "usedImageUrl": "https://cdn.dexscreener.com/cms/images/K_-MXPU8k2HSUxmG?width=800&height=800&quality=95&format=auto"
+  },
+  {
+    "id": "neet",
+    "dex": "https://dexscreener.com/solana/5wnu5qhdprgrl37ffcd6tmmqzugqgxwafgz477rshthy",
+    "api": "https://api.dexscreener.com/latest/dex/pairs/solana/5wnu5qhdprgrl37ffcd6tmmqzugqgxwafgz477rshthy",
+    "imageUrl": "https://cdn.dexscreener.com/cms/images/d5d7bfff13c5cc762c020b4414e4493a8eb19d4bdcfb51957da58e9c471d43dd?width=800&height=800&quality=95&format=auto",
+    "usedImageUrl": "https://cdn.dexscreener.com/cms/images/d5d7bfff13c5cc762c020b4414e4493a8eb19d4bdcfb51957da58e9c471d43dd?width=800&height=800&quality=95&format=auto"
+  },
+  {
+    "id": "burnie",
+    "dex": "https://dexscreener.com/solana/5tyfvifwqrkv9bjsthgitbdqeyc1bgugrudnsaduxqjp",
+    "api": "https://api.dexscreener.com/latest/dex/pairs/solana/5tyfvifwqrkv9bjsthgitbdqeyc1bgugrudnsaduxqjp",
+    "imageUrl": "https://cdn.dexscreener.com/cms/images/7TlTkQLRcg92oYfR?width=800&height=800&quality=95&format=auto",
+    "usedImageUrl": "https://cdn.dexscreener.com/cms/images/7TlTkQLRcg92oYfR?width=800&height=800&quality=95&format=auto"
+  },
+  {
+    "id": "wtdd",
+    "dex": "https://dexscreener.com/solana/9rpsv1vwy6itwjihsbjrbpw2z36aeicnaiktyqtnxxcr",
+    "api": "https://api.dexscreener.com/latest/dex/pairs/solana/9rpsv1vwy6itwjihsbjrbpw2z36aeicnaiktyqtnxxcr",
+    "imageUrl": "https://cdn.dexscreener.com/cms/images/I7AUiVLMrSE48gxE?width=800&height=800&quality=95&format=auto",
+    "usedImageUrl": "https://cdn.dexscreener.com/cms/images/I7AUiVLMrSE48gxE?width=800&height=800&quality=95&format=auto"
+  },
+  {
+    "id": "buttcoin",
+    "dex": "https://dexscreener.com/solana/ffcygssgwhfora9rxxka48p8yfoz8tsw85jpo3cqhdys",
+    "api": "https://api.dexscreener.com/latest/dex/pairs/solana/ffcygssgwhfora9rxxka48p8yfoz8tsw85jpo3cqhdys",
+    "imageUrl": "https://cdn.dexscreener.com/cms/images/baf3d4bdaac47ef59f32c8ddc11f83e995f351be1eef6d4d192d72ff8def0020?width=800&height=800&quality=95&format=auto",
+    "usedImageUrl": "https://cdn.dexscreener.com/cms/images/baf3d4bdaac47ef59f32c8ddc11f83e995f351be1eef6d4d192d72ff8def0020?width=800&height=800&quality=95&format=auto"
+  },
+  {
+    "id": "wojak",
+    "dex": "https://dexscreener.com/solana/fdry5i5kuadz1ik8gps26qjj9rw9mpufxmeggc2hnsp7",
+    "api": "https://api.dexscreener.com/latest/dex/pairs/solana/fdry5i5kuadz1ik8gps26qjj9rw9mpufxmeggc2hnsp7",
+    "imageUrl": "https://cdn.dexscreener.com/cms/images/f0ebdab5680465e3a019b96338970c8de8c20a5bac31b46cd2cb92ad1bcf107d?width=800&height=800&quality=95&format=auto",
+    "usedImageUrl": "https://cdn.dexscreener.com/cms/images/f0ebdab5680465e3a019b96338970c8de8c20a5bac31b46cd2cb92ad1bcf107d?width=800&height=800&quality=95&format=auto"
+  },
+  {
+    "id": "fartcoin",
+    "dex": "https://dexscreener.com/solana/bzc9nzfmqkxr6fz1dbph7bdf9broyef6pnzesp7v5iiw",
+    "api": "https://api.dexscreener.com/latest/dex/pairs/solana/bzc9nzfmqkxr6fz1dbph7bdf9broyef6pnzesp7v5iiw",
+    "imageUrl": "https://cdn.dexscreener.com/cms/images/9af5672845c89585e9ff1e3b26a640090324aa4d92222052d1043e60ef8182de?width=800&height=800&quality=95&format=auto",
+    "usedImageUrl": "https://cdn.dexscreener.com/cms/images/9af5672845c89585e9ff1e3b26a640090324aa4d92222052d1043e60ef8182de?width=800&height=800&quality=95&format=auto"
+  }
+]

@@ -1,0 +1,232 @@
+{
+  "tree0": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 128,
+    "drawW": 64,
+    "drawH": 80,
+    "footX": 32,
+    "footY": 78
+  },
+  "tree1": {
+    "x": 128,
+    "y": 0,
+    "w": 128,
+    "h": 128,
+    "drawW": 64,
+    "drawH": 80,
+    "footX": 32,
+    "footY": 78
+  },
+  "tree2": {
+    "x": 256,
+    "y": 0,
+    "w": 128,
+    "h": 128,
+    "drawW": 64,
+    "drawH": 80,
+    "footX": 32,
+    "footY": 78
+  },
+  "tree3": {
+    "x": 384,
+    "y": 0,
+    "w": 128,
+    "h": 128,
+    "drawW": 64,
+    "drawH": 80,
+    "footX": 32,
+    "footY": 78
+  },
+  "bush0": {
+    "x": 0,
+    "y": 128,
+    "w": 64,
+    "h": 56,
+    "drawW": 28,
+    "drawH": 24,
+    "footX": 14,
+    "footY": 22
+  },
+  "bush1": {
+    "x": 64,
+    "y": 128,
+    "w": 64,
+    "h": 56,
+    "drawW": 28,
+    "drawH": 24,
+    "footX": 14,
+    "footY": 22
+  },
+  "bush2": {
+    "x": 128,
+    "y": 128,
+    "w": 64,
+    "h": 56,
+    "drawW": 28,
+    "drawH": 24,
+    "footX": 14,
+    "footY": 22
+  },
+  "bush3": {
+    "x": 192,
+    "y": 128,
+    "w": 64,
+    "h": 56,
+    "drawW": 28,
+    "drawH": 24,
+    "footX": 14,
+    "footY": 22
+  },
+  "rock0": {
+    "x": 0,
+    "y": 184,
+    "w": 64,
+    "h": 56,
+    "drawW": 28,
+    "drawH": 22,
+    "footX": 14,
+    "footY": 20
+  },
+  "rock1": {
+    "x": 64,
+    "y": 184,
+    "w": 64,
+    "h": 56,
+    "drawW": 28,
+    "drawH": 22,
+    "footX": 14,
+    "footY": 20
+  },
+  "rock2": {
+    "x": 128,
+    "y": 184,
+    "w": 64,
+    "h": 56,
+    "drawW": 28,
+    "drawH": 22,
+    "footX": 14,
+    "footY": 20
+  },
+  "rock3": {
+    "x": 192,
+    "y": 184,
+    "w": 64,
+    "h": 56,
+    "drawW": 28,
+    "drawH": 22,
+    "footX": 14,
+    "footY": 20
+  },
+  "rock4": {
+    "x": 256,
+    "y": 184,
+    "w": 64,
+    "h": 56,
+    "drawW": 28,
+    "drawH": 22,
+    "footX": 14,
+    "footY": 20
+  },
+  "rock5": {
+    "x": 320,
+    "y": 184,
+    "w": 64,
+    "h": 56,
+    "drawW": 28,
+    "drawH": 22,
+    "footX": 14,
+    "footY": 20
+  },
+  "grass0": {
+    "x": 0,
+    "y": 240,
+    "w": 64,
+    "h": 72,
+    "drawW": 24,
+    "drawH": 30,
+    "footX": 12,
+    "footY": 28
+  },
+  "grass1": {
+    "x": 64,
+    "y": 240,
+    "w": 64,
+    "h": 72,
+    "drawW": 24,
+    "drawH": 30,
+    "footX": 12,
+    "footY": 28
+  },
+  "grass2": {
+    "x": 128,
+    "y": 240,
+    "w": 64,
+    "h": 72,
+    "drawW": 24,
+    "drawH": 30,
+    "footX": 12,
+    "footY": 28
+  },
+  "grass3": {
+    "x": 192,
+    "y": 240,
+    "w": 64,
+    "h": 72,
+    "drawW": 24,
+    "drawH": 30,
+    "footX": 12,
+    "footY": 28
+  },
+  "flower0": {
+    "x": 0,
+    "y": 312,
+    "w": 56,
+    "h": 48,
+    "drawW": 18,
+    "drawH": 18,
+    "footX": 9,
+    "footY": 16
+  },
+  "flower1": {
+    "x": 56,
+    "y": 312,
+    "w": 56,
+    "h": 48,
+    "drawW": 18,
+    "drawH": 18,
+    "footX": 9,
+    "footY": 16
+  },
+  "flower2": {
+    "x": 112,
+    "y": 312,
+    "w": 56,
+    "h": 48,
+    "drawW": 18,
+    "drawH": 18,
+    "footX": 9,
+    "footY": 16
+  },
+  "flower3": {
+    "x": 168,
+    "y": 312,
+    "w": 56,
+    "h": 48,
+    "drawW": 18,
+    "drawH": 18,
+    "footX": 9,
+    "footY": 16
+  },
+  "lamp0": {
+    "x": 0,
+    "y": 360,
+    "w": 56,
+    "h": 112,
+    "drawW": 18,
+    "drawH": 34,
+    "footX": 9,
+    "footY": 32
+  }
+}

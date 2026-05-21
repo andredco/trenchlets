@@ -1,0 +1,14 @@
+# Railway config — Trenchlets backend + frontend served from one service.
+# The build runs the Vite static build for the frontend, then starts the
+# Node server which serves the static files plus the websocket + API.
+
+[build]
+builder = "NIXPACKS"
+buildCommand = "cd .. && npm install && npm run build && cd server && npm install"
+
+[deploy]
+startCommand = "npm run migrate && npm start"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+healthcheckPath = "/health"
+healthcheckTimeout = 30

@@ -1,0 +1,15 @@
+{
+  "cell": 96,
+  "cols": 8,
+  "rows": 3,
+  "drawW": 36,
+  "drawH": 42,
+  "footX": 18,
+  "footY": 39,
+  "frameCount": 8,
+  "rowsByDir": {
+    "down": 0,
+    "up": 1,
+    "side": 2
+  }
+}

@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#02080a" />
+    <meta name="description" content="Trenchlets · live pixel-art reward world for pump.fun communities." />
+    <title>Trenchlets · play</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=VT323&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body class="play-mode">
+    <div id="app">
+      <header class="topbar slim">
+        <a class="brand" href="/" aria-label="Trenchlets landing">
+          <span class="brand-mark" aria-hidden="true">
+            <span class="brand-mark-glyph">TL</span>
+          </span>
+          <span class="brand-text">
+            <strong>TRENCHLETS</strong>
+            <small>v0.4 · live world</small>
+          </span>
+        </a>
+
+        <div class="top-actions">
+          <button id="nameTagButton" class="mini-button name-tag-button" type="button" title="Edit your display name">
+            <span class="name-tag-dot" aria-hidden="true"></span>
+            <span id="nameTagLabel">guest</span>
+          </button>
+          <button id="helpButton" class="mini-button" type="button" title="How Trenchlets works">
+            ? HELP
+          </button>
+          <button id="dashboardButton" class="mini-button" type="button" title="Tasks & houses">
+            DASH
+          </button>
+          <button id="simpleButton" class="mini-button" type="button" title="Toggle text mirror" aria-pressed="false">
+            SIMPLE
+          </button>
+          <button id="meetingButton" class="mini-button" type="button" title="Town meeting">
+            MEETING
+          </button>
+          <button id="fullscreenButton" class="mini-button" type="button" title="Toggle fullscreen">
+            FULL
+          </button>
+          <button id="muteButton" class="mini-button" type="button" aria-pressed="false" title="Toggle sound">
+            ♪ <span id="muteLabel">SOUND ON</span>
+          </button>
+          <button id="walletButton" class="wallet-button" type="button">
+            <span class="wallet-dot" aria-hidden="true"></span>
+            <span id="walletLabel">CONNECT WALLET</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="play-main">
+        <section class="hero play-hero" id="play">
+          <div class="stage play-stage" id="stage">
+            <div class="stage-frame play-stage-frame">
+              <div class="crt-overlay" aria-hidden="true"></div>
+              <canvas
+                id="gameCanvas"
+                width="720"
+                height="405"
+                aria-label="Trenchlets live world"
+                tabindex="0"
+              ></canvas>
+
+              <div class="hud hud-tl" id="identityHud">
+                <div class="hud-card">
+                  <span class="hud-dot" id="identityDot"></span>
+                  <div class="hud-card-text">
+                    <strong id="identityName">SELECT IDENTITY</strong>
+                    <small id="identityMeta">Press START to enter</small>
+                  </div>
+                </div>
+                <button class="hud-card tier-card" id="tierCard" type="button" title="Stake more TRENCHLETS">
+                  <span class="tier-badge" id="tierBadge">S</span>
+                  <div class="hud-card-text">
+                    <strong id="tierLabel">SHRIMP</strong>
+                    <small id="tierBalance">0 TRENCHLETS</small>
+                  </div>
+                </button>
+              </div>
+
+              <div class="hud hud-tr" id="vaultHud">
+                <div class="hud-card stat-row" id="vaultCard">
+                  <div class="hud-card-text right">
+                    <small>CENTRAL VAULT</small>
+                    <strong id="vaultAmount">$0</strong>
+                    <span id="vaultDelta" class="vault-delta">+0.00 /s</span>
+                  </div>
+                </div>
+                <div class="hud-card stat-row share-card" id="shareCard">
+                  <div class="hud-card-text right">
+                    <small>MY SHARE</small>
+                    <strong id="shareAmount">$0</strong>
+                    <span id="claimedHint" class="claim-hint">Walk to vault, press E</span>
+                  </div>
+                </div>
+                <div class="hud-card stat-row" id="treasuryCard">
+                  <div class="hud-card-text right">
+                    <small>PT TREASURY</small>
+                    <strong id="treasuryAmount">$0</strong>
+                  </div>
+                </div>
+                <div class="hud-card small" id="eventClockCard">
+                  <div class="hud-card-text right">
+                    <small id="eventClockLabel">NEXT EVENT</small>
+                    <strong id="eventClock">--:--</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="hud hud-bl" id="chatHud">
+                <div class="chat-card">
+                  <div class="chat-log" id="chatLog" aria-live="polite"></div>
+                  <form class="chat-row" id="chatForm" autocomplete="off">
+                    <span class="chat-prefix" id="chatPrefix">guest&gt;</span>
+                    <input
+                      id="chatInput"
+                      type="text"
+                      maxlength="80"
+                      placeholder="Press T to chat..."
+                      aria-label="Chat message"
+                    />
+                    <button id="chatSend" type="submit">SEND</button>
+                  </form>
+                </div>
+              </div>
+
+              <div class="hud hud-br" id="rightHud">
+                <div class="interact-prompt" id="interactPrompt" hidden>
+                  <span class="key-pill">E</span>
+                  <span id="interactText">Interact</span>
+                </div>
+                <canvas id="minimap" width="160" height="100" aria-label="Minimap"></canvas>
+              </div>
+
+              <div class="event-banner" id="eventBanner" hidden>
+                <span class="event-tag" id="eventTag">WORLD EVENT</span>
+                <strong id="eventTitle"></strong>
+                <span id="eventDesc"></span>
+              </div>
+
+              <div class="notif-stack" id="notifStack" aria-live="polite"></div>
+
+              <div class="splash" id="splash">
+                <div class="splash-inner">
+                  <div class="splash-glyph" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span>
+                  </div>
+                  <h1>TRENCHLETS</h1>
+                  <p class="splash-tag">A live reward world for pump.fun communities</p>
+
+                  <!-- Loading bar (shown while the world bakes) -->
+                  <div class="splash-loader" id="splashLoader">
+                    <div class="splash-loader-bar"><div class="splash-loader-fill" id="splashLoaderFill"></div></div>
+                    <div class="splash-loader-label" id="splashLoaderLabel">Loading world…</div>
+                  </div>
+
+                  <!-- Controls + buttons (revealed after load) -->
+                  <div class="splash-ready" id="splashReady" hidden>
+                    <p class="splash-help">
+                      WALK <span class="key-pill k">W A S D</span>
+                      <span class="dot">·</span>
+                      INTERACT <span class="key-pill k">E</span>
+                      <span class="dot">·</span>
+                      CHAT <span class="key-pill k">T</span>
+                    </p>
+                    <div class="splash-buttons">
+                      <button id="enterButton" class="splash-button primary" type="button">
+                        PRESS START
+                      </button>
+                      <button id="guestButton" class="splash-button" type="button">
+                        ENTER AS GUEST
+                      </button>
+                    </div>
+                    <p class="splash-foot">
+                      Guests boost a random eligible house. Hook your wallet to rep a specific
+                      house.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="joystick" id="joystick" hidden aria-hidden="true">
+                <div class="joystick-knob" id="joystickKnob"></div>
+              </div>
+              <div class="touch-actions" id="touchActions" hidden aria-hidden="true">
+                <button id="touchInteract" type="button" class="touch-button">E</button>
+                <button id="touchChat" type="button" class="touch-button">T</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <aside class="simple-panel" id="simplePanel" hidden aria-label="Simple text view">
+      <header class="simple-head">
+        <small>SIMPLE VIEW</small>
+        <h3>Trenchlets in plain text</h3>
+        <button class="modal-close" type="button" id="simpleClose" aria-label="Close">×</button>
+      </header>
+      <div class="simple-body" id="simpleBody"></div>
+    </aside>
+
+    <div class="modal" id="helpModal" hidden>
+      <div class="modal-shade" data-close></div>
+      <div class="modal-frame wide" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+        <header class="modal-head">
+          <small>HOW TRENCHLETS WORKS</small>
+          <h2 id="helpTitle">Welcome to Trenchlets</h2>
+          <button class="modal-close" type="button" data-close aria-label="Close">×</button>
+        </header>
+        <div class="help-grid">
+          <article>
+            <span class="help-num">01</span>
+            <h3>The City &amp; the Houses</h3>
+            <p>
+              Trenchlets is the city. <b>10 launch houses</b> live inside it, each
+              representing a pump.fun community. Walk to a totem and press
+              <span class="key-pill k">E</span> to claim a house (you need to hold
+              that house's token in your wallet).
+            </p>
+          </article>
+          <article>
+            <span class="help-num">02</span>
+            <h3>The Central Vault</h3>
+            <p>
+              Every token bought from a house flows into the central vault.
+              <b>TRENCHLETS holders</b> at higher tiers unlock more powerful tasks
+              that pull bigger buybacks into the vault.
+            </p>
+          </article>
+          <article>
+            <span class="help-num">03</span>
+            <h3>Three reward streams</h3>
+            <p>
+              Each task resolves into three splits: a slice fills the <b>house
+              vault</b>, a slice routes to your <b>personal share</b>, and a slice
+              funds the <b>Trenchlets protocol treasury</b>. Cards show the live
+              split.
+            </p>
+          </article>
+          <article>
+            <span class="help-num">04</span>
+            <h3>12 hour claim lock</h3>
+            <p>
+              Realistically, nobody should be getting paid in the first 12 hours.
+              Your share <b>accumulates</b> but the vault won't release it until
+              the lock expires from your first play. House vaults still grow
+              meanwhile.
+            </p>
+          </article>
+          <article>
+            <span class="help-num">05</span>
+            <h3>Strategy: raids &amp; disasters</h3>
+            <p>
+              SHARK+ tier holders can walk to a rival house billboard, press
+              <span class="key-pill k">E</span>, and <b>RAID</b> a slice of their
+              vault into yours. Natural disasters (fire, lightning, earthquake,
+              locusts) hit random houses — citizens can bucket-brigade fires.
+            </p>
+          </article>
+          <article>
+            <span class="help-num">06</span>
+            <h3>Town meeting</h3>
+            <p>
+              New houses are added by vote. Open <b>MEETING</b>, paste the CA,
+              and cast your vote. One vote per hardware id. Top voted houses get
+              promoted.
+            </p>
+          </article>
+          <article>
+            <span class="help-num">07</span>
+            <h3>Founder-controlled vault</h3>
+            <p>
+              The on-chain vault address is a multisig the founder controls and
+              cannot be drained from the client. This frontend never holds
+              private keys. Once real money is in there, no one can siphon it.
+            </p>
+          </article>
+          <article>
+            <span class="help-num">08</span>
+            <h3>Simple view + accessibility</h3>
+            <p>
+              Click <b>SIMPLE</b> for a text mirror of everything happening live —
+              vault, houses, events, your share, the next reward window. Same
+              data, accessible format.
+            </p>
+          </article>
+        </div>
+        <div class="modal-actions">
+          <button class="splash-button primary" type="button" data-close>
+            ENTER TRENCHLETS
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="meetingModal" hidden>
+      <div class="modal-shade" data-close></div>
+      <div class="modal-frame wide" role="dialog" aria-modal="true" aria-labelledby="meetingTitle">
+        <header class="modal-head">
+          <small>TOWN HALL</small>
+          <h2 id="meetingTitle">Town Meeting · Propose a House</h2>
+          <button class="modal-close" type="button" data-close aria-label="Close">×</button>
+        </header>
+        <p class="modal-copy">
+          Submit a contract address for a new house. Each hardware id may cast
+          one vote per proposal. Top voted houses move into a promotion queue
+          for the next launch wave.
+        </p>
+        <form id="proposalForm" class="proposal-form" autocomplete="off">
+          <label class="proposal-field">
+            <span>HOUSE NAME</span>
+            <input id="propName" type="text" maxlength="40" placeholder="e.g. Catana" required />
+          </label>
+          <label class="proposal-field">
+            <span>TICKER</span>
+            <input id="propTicker" type="text" maxlength="12" placeholder="e.g. $CATANA" required />
+          </label>
+          <label class="proposal-field wide">
+            <span>CONTRACT ADDRESS</span>
+            <input id="propCA" type="text" maxlength="64" placeholder="Solana mint address" required />
+          </label>
+          <button type="submit" class="splash-button primary">FILE PROPOSAL</button>
+        </form>
+        <div class="proposal-list" id="proposalList"></div>
+        <p class="modal-foot" id="meetingHwid">
+          Your hardware id: <code id="hwidLabel">--</code>
+        </p>
+      </div>
+    </div>
+
+    <div class="modal" id="dashboardModal" hidden>
+      <div class="modal-shade" data-close></div>
+      <div class="modal-frame xl" role="dialog" aria-modal="true" aria-labelledby="dashboardTitle">
+        <header class="modal-head">
+          <small>LIVE DASHBOARD</small>
+          <h2 id="dashboardTitle">Trenchlets World</h2>
+          <button class="modal-close" type="button" data-close aria-label="Close">×</button>
+        </header>
+
+        <!-- Top stats strip -->
+        <div class="dash-stats">
+          <div class="dash-stat">
+            <small>CENTRAL VAULT</small>
+            <strong id="dashVaultAmount">$0</strong>
+          </div>
+          <div class="dash-stat">
+            <small>NEXT EPOCH</small>
+            <strong id="dashEpochTimer">--:--:--</strong>
+          </div>
+          <div class="dash-stat">
+            <small>YOUR HOUSE YIELD</small>
+            <strong id="dashHouseYield">+0.0%</strong>
+          </div>
+          <div class="dash-stat">
+            <small>YOUR TIER</small>
+            <strong id="dashTier">SHRIMP</strong>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <section class="dash-section">
+            <header class="dash-section-head">
+              <small>YOUR HOUSE</small>
+              <h3>Active Tasks</h3>
+            </header>
+            <p class="dash-hint">Walk to a billboard in-game and press <span class="key-pill k">E</span> to play minigames and boost your house's yield.</p>
+            <div class="task-list" id="taskList"></div>
+          </section>
+          <section class="dash-section">
+            <header class="dash-section-head">
+              <small>10 HOUSES · LIVE STANDINGS</small>
+              <h3>House Vaults</h3>
+            </header>
+            <div class="community-grid" id="communityList"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="stakeModal" hidden>
+      <div class="modal-shade" data-close></div>
+      <div class="modal-frame" role="dialog" aria-modal="true" aria-labelledby="stakeTitle">
+        <header class="modal-head">
+          <small>YOUR TIER</small>
+          <h2 id="stakeTitle">Holdings &amp; tier</h2>
+          <button class="modal-close" type="button" data-close aria-label="Close">×</button>
+        </header>
+        <p class="modal-copy">
+          Your tier is read live from your connected wallet. Hold more $TRENCHLETS to climb the ladder and unlock bigger contribution multipliers.
+        </p>
+        <div class="tier-ladder" id="tierLadder"></div>
+        <p class="modal-foot">No staking. Just hold the token. Your tier updates within 30 seconds of a balance change.</p>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

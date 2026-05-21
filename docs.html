@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#050210" />
+    <meta name="description" content="Trenchlets documentation — full game mechanics, minigames, world events, tier ladder, vault and epoch math." />
+    <title>Trenchlets · Docs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <link rel="stylesheet" href="/src/landing.css" />
+  </head>
+  <body class="landing-mode docs-mode">
+
+    <!-- TOPBAR -->
+    <header class="lp-topbar">
+      <a class="lp-brand" href="/" aria-label="Trenchlets home">
+        <span class="lp-brand-mark">T</span>
+        <span class="lp-brand-text">
+          <strong>Trenchlets</strong>
+          <small>v0.4 · docs</small>
+        </span>
+      </a>
+      <nav class="lp-nav">
+        <a href="/">Home</a>
+        <a href="/docs.html">Docs</a>
+        <a href="/play.html">Play</a>
+      </nav>
+      <a class="lp-cta-btn" href="/play.html">
+        <span class="lp-cta-dot"></span>
+        Enter world
+      </a>
+    </header>
+
+    <div class="docs-layout">
+      <!-- SIDEBAR -->
+      <aside class="docs-sidebar">
+        <h4>GET STARTED</h4>
+        <a href="#intro">Intro</a>
+        <a href="#first-play">Your first 5 minutes</a>
+        <a href="#controls">Controls</a>
+
+        <h4>GAMEPLAY</h4>
+        <a href="#houses">Houses & joining</a>
+        <a href="#minigames">Minigames</a>
+        <a href="#difficulty">Difficulty & cooldowns</a>
+        <a href="#yield">House yield</a>
+
+        <h4>ECONOMY</h4>
+        <a href="#vault">The vault</a>
+        <a href="#epoch">6-hour epochs</a>
+        <a href="#tiers">Tier ladder</a>
+        <a href="#airdrop">Airdrop math</a>
+
+        <h4>STRATEGY</h4>
+        <a href="#events">World events</a>
+        <a href="#raids">Raids</a>
+        <a href="#disasters">Disasters</a>
+        <a href="#meeting">Town meeting</a>
+
+        <h4>TECHNICAL</h4>
+        <a href="#multiplayer">Multiplayer</a>
+        <a href="#security">Security</a>
+        <a href="#faq">FAQ</a>
+      </aside>
+
+      <!-- CONTENT -->
+      <article class="docs-content">
+
+        <header class="docs-hero">
+          <span class="lp-eyebrow">DOCUMENTATION</span>
+          <h1>How to play Trenchlets</h1>
+          <p>Everything you need to know — from your first walk in the world to optimizing yield strategy across multiple houses.</p>
+        </header>
+
+        <!-- INTRO -->
+        <section id="intro">
+          <h2>Intro</h2>
+          <p>
+            Trenchlets is a live pixel-art world where 10 pump.fun communities ("houses") compete for vault yield.
+            The whole point: <strong>real coordination &gt; spam</strong>. Skill-based minigames replace farming bots.
+            Every contribution stacks toward your house's share of a vault that drains every 6 hours.
+          </p>
+          <div class="docs-callout">
+            <strong>TL;DR</strong> — Pick a house. Walk to its billboard. Press E. Play 10 stages of a minigame.
+            Your score becomes a contribution to your house's yield. Vault drains every 6h, 15% goes to qualifying $TRENCHLETS holders pro-rata.
+          </div>
+        </section>
+
+        <!-- FIRST PLAY -->
+        <section id="first-play">
+          <h2>Your first 5 minutes</h2>
+          <ol class="docs-steps">
+            <li><strong>Press START</strong> from the splash. Or hit ENTER AS GUEST to play without a wallet — guests boost a random eligible house.</li>
+            <li><strong>Walk</strong> using <kbd>W A S D</kbd> or arrows. Touch joystick on mobile.</li>
+            <li><strong>Find a totem</strong> in any of the 10 districts. Press <kbd>E</kbd> to inspect or claim a house.</li>
+            <li><strong>Walk to your billboard</strong> (the big poster next to the totem). Press <kbd>E</kbd>.</li>
+            <li><strong>Pick a game and difficulty.</strong> Play 10 stages. Your final % becomes your house contribution.</li>
+            <li><strong>Wait the cooldown</strong> (1-2 hours), then go again. Or visit other houses to coordinate, watch events, etc.</li>
+          </ol>
+        </section>
+
+        <!-- CONTROLS -->
+        <section id="controls">
+          <h2>Controls</h2>
+          <table class="docs-table">
+            <thead><tr><th>Action</th><th>Desktop</th><th>Mobile</th></tr></thead>
+            <tbody>
+              <tr><td>Move</td><td><kbd>W A S D</kbd> or arrows</td><td>Joystick (bottom-left)</td></tr>
+              <tr><td>Interact</td><td><kbd>E</kbd></td><td>E button</td></tr>
+              <tr><td>Chat</td><td><kbd>T</kbd></td><td>T button</td></tr>
+              <tr><td>Sprint</td><td>Active during Raid Hour</td><td>Active during Raid Hour</td></tr>
+              <tr><td>Dashboard</td><td>DASH button on topbar</td><td>DASH button on topbar</td></tr>
+              <tr><td>Help</td><td>? HELP button</td><td>? HELP button</td></tr>
+              <tr><td>Mute</td><td>♪ button</td><td>♪ button</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- HOUSES -->
+        <section id="houses">
+          <h2>Houses & joining</h2>
+          <p>
+            10 launch houses, each a real pump.fun community. To join a house, walk to its totem and press <kbd>E</kbd>.
+            You need to hold the house's token in your connected wallet to claim membership.
+            Without a wallet, "guest" mode randomly assigns your contributions to an eligible house.
+          </p>
+          <p>
+            Each house has its own plaza, citizens (NPCs), color theme, and chat phrases.
+            Houses can be challenged for the next launch wave through Town Meeting votes.
+          </p>
+        </section>
+
+        <!-- MINIGAMES -->
+        <section id="minigames">
+          <h2>Minigames</h2>
+          <p>5 games at launch, each with 10 progressive stages:</p>
+          <div class="docs-game-grid">
+            <div class="docs-game"><strong>Rhythm Rush</strong><span>Guitar-hero falling notes. Hit D/F/J/K on time.</span></div>
+            <div class="docs-game"><strong>Memory Mint</strong><span>Simon-says pattern recall. Each round adds a step.</span></div>
+            <div class="docs-game"><strong>Quick Tap</strong><span>Reaction speed. Tap targets as fast as they pop.</span></div>
+            <div class="docs-game"><strong>Pattern Match</strong><span>Memory cards. Match symbol pairs before time runs out.</span></div>
+            <div class="docs-game"><strong>Stack Tower</strong><span>Stack moving blocks. One slip and the run ends.</span></div>
+          </div>
+          <p>Each stage gets harder — faster spawns, shorter timers, more elements. Score per stage is 0-100. Total contribution is the average × difficulty multiplier.</p>
+        </section>
+
+        <!-- DIFFICULTY -->
+        <section id="difficulty">
+          <h2>Difficulty & cooldowns</h2>
+          <table class="docs-table">
+            <thead><tr><th>Difficulty</th><th>Max yield / stage</th><th>Cooldown</th><th>Best for</th></tr></thead>
+            <tbody>
+              <tr><td><span style="color:#5cff9a">EASY</span></td><td>+2%</td><td>1 hour</td><td>Frequent contributors, casual sessions</td></tr>
+              <tr><td><span style="color:#ffd84a">MEDIUM</span></td><td>+4%</td><td>1.5 hours</td><td>Most players — balanced effort vs reward</td></tr>
+              <tr><td><span style="color:#ff4a6e">HARD</span></td><td>+6%</td><td>2 hours</td><td>Skilled players hunting max house yield</td></tr>
+            </tbody>
+          </table>
+          <div class="docs-callout">
+            <strong>Math</strong> — A perfect 10/10 stages run gives <code>(stages × 100 / 1000) × difficulty% × 10 stages</code>.
+            Hard perfect = <strong>~6% per stage × 10 = 60% house yield</strong> in one session.
+          </div>
+        </section>
+
+        <!-- YIELD -->
+        <section id="yield">
+          <h2>House yield</h2>
+          <p>
+            Yield is your house's accumulated contribution score within the current epoch.
+            When the epoch ends (every 6 hours), houses with higher yield get a bigger share of the vault drain.
+          </p>
+          <p>
+            <strong>It's a team effort.</strong> Every member's contribution stacks. A house of 100 active players doing easy daily plays beats 5 hard-mode whales every time.
+          </p>
+        </section>
+
+        <!-- VAULT -->
+        <section id="vault">
+          <h2>The vault</h2>
+          <p>
+            The central vault is the developer wallet on Solana that the $TRENCHLETS token launches through.
+            Token holdings (the $TRENCHLETS token plus all 10 house tokens) live there.
+          </p>
+          <p>
+            The frontend cannot withdraw — only read. All distributions happen via on-chain settlement.
+            See <a href="#security">Security</a> for the full guarantee.
+          </p>
+          <div class="docs-callout">
+            <strong>Vault address:</strong> <code id="docsVaultAddress">…</code>
+          </div>
+        </section>
+
+        <!-- EPOCH -->
+        <section id="epoch">
+          <h2>6-hour epochs</h2>
+          <p>
+            Every 6 hours, the vault drains <strong>15%</strong> of its current USD value to qualifying holders.
+            Epoch boundaries are anchored to a fixed launch timestamp — all clients see the same countdown.
+          </p>
+          <ul class="docs-bullets">
+            <li>Epoch length: <strong>6 hours</strong></li>
+            <li>Drain percentage: <strong>15% of vault USD</strong></li>
+            <li>Qualifying floor: <strong>50,000 $TRENCHLETS held</strong></li>
+            <li>Distribution: <strong>pro-rata × tier multiplier</strong></li>
+          </ul>
+        </section>
+
+        <!-- TIERS -->
+        <section id="tiers">
+          <h2>Tier ladder</h2>
+          <table class="docs-table">
+            <thead><tr><th>Tier</th><th>Hold</th><th>Multiplier</th><th>Unlocks</th></tr></thead>
+            <tbody>
+              <tr><td>SHRIMP</td><td>0+</td><td>1.00×</td><td>Walk, watch, no airdrop weight</td></tr>
+              <tr><td>FISH</td><td>50K</td><td>1.08×</td><td>Qualifies for airdrop</td></tr>
+              <tr><td>DOLPHIN</td><td>500K</td><td>1.18×</td><td>Citizen Bounty unlocked</td></tr>
+              <tr><td>SHARK</td><td>5M</td><td>1.30×</td><td>Raids unlocked</td></tr>
+              <tr><td>WHALE</td><td>50M</td><td>1.50×</td><td>Treasury Tribute, max yield bonus</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- AIRDROP -->
+        <section id="airdrop">
+          <h2>Airdrop math</h2>
+          <p>At each epoch close:</p>
+          <pre class="docs-code">drain = vault_usd × 0.15
+qualifying_holders = wallets with ≥ 50K $TRENCHLETS
+weight = balance × tier_multiplier
+share = (your_weight / total_weight) × drain</pre>
+          <p>House yield doesn't change the airdrop directly — it changes which houses contribute most to the next epoch's vault. The vault grows, and your $TRENCHLETS holding gets you a slice every 6 hours.</p>
+        </section>
+
+        <!-- EVENTS -->
+        <section id="events">
+          <h2>World events</h2>
+          <p>Random events fire across the world. They modify contribution multipliers in real time:</p>
+          <table class="docs-table">
+            <thead><tr><th>Event</th><th>Multiplier</th><th>Behavior</th></tr></thead>
+            <tbody>
+              <tr><td>Solar Eclipse</td><td>2.0×</td><td>All contributions doubled</td></tr>
+              <tr><td>Raid Hour</td><td>1.5×</td><td>NPCs sprint to vault, faster movement</td></tr>
+              <tr><td>House Spotlight</td><td>3.0×</td><td>One random house gets triple yield</td></tr>
+              <tr><td>Vault Overflow</td><td>1.25×</td><td>Coins rain over the plaza, walk under to collect</td></tr>
+              <tr><td>Whale Visit</td><td>—</td><td>Whale crosses the world, walk under for vault tip</td></tr>
+              <tr><td>Earthquake</td><td>0.5×</td><td>Camera shakes, NPCs panic, contributions halved</td></tr>
+              <tr><td>Locust Swarm</td><td>0.7×</td><td>Treasury rate halved</td></tr>
+              <tr><td>Lightning Storm</td><td>0.6×</td><td>Random house progress freezes</td></tr>
+              <tr><td>House Fire</td><td>0.3×</td><td>House drains until citizens douse it (E at burning billboard)</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- RAIDS -->
+        <section id="raids">
+          <h2>Raids</h2>
+          <p>SHARK+ tier players can raid rival houses. Walk to a rival billboard, press <kbd>E</kbd>, RAID. Steals 3-12% of their vault into yours.</p>
+          <ul class="docs-bullets">
+            <li>Cooldown: 12 minutes per raider</li>
+            <li>Split: 85% to attacker's house vault, 10% to attacker's personal share, 5% to PT treasury</li>
+            <li>Raids are visible in chat and trigger a defense window for the target</li>
+          </ul>
+        </section>
+
+        <!-- DISASTERS -->
+        <section id="disasters">
+          <h2>Disasters</h2>
+          <p>Disasters hit random houses. Citizens have to organize to mitigate them:</p>
+          <ul class="docs-bullets">
+            <li><strong>Fire</strong> — Run to the burning billboard, press <kbd>E</kbd> to bucket-brigade. Multiple players speed up extinguish.</li>
+            <li><strong>Earthquake</strong> — Vault accrual halts. Wait it out or coordinate.</li>
+            <li><strong>Lightning</strong> — Random house progress freezes. Strategic raids become attractive.</li>
+            <li><strong>Locusts</strong> — Treasury rate halves. Affects PROTOCOL category tasks most.</li>
+          </ul>
+        </section>
+
+        <!-- TOWN MEETING -->
+        <section id="meeting">
+          <h2>Town meeting</h2>
+          <p>
+            New houses join through community vote. Open <strong>MEETING</strong> on the topbar, paste a CA, cast your vote.
+            One vote per hardware-id. Top voted houses get promoted to the next launch wave.
+          </p>
+        </section>
+
+        <!-- MULTIPLAYER -->
+        <section id="multiplayer">
+          <h2>Multiplayer</h2>
+          <p>
+            Trenchlets is multiplayer-first. The current build uses <code>BroadcastChannel</code> for cross-tab presence (open two tabs and they see each other).
+            Production routes everything through a WebSocket server so all players in the world see each other walking, contributing, raiding, and chatting in real time.
+          </p>
+          <p>
+            Server-side validation enforces minigame minimum-time anti-cheat and contribution rate limits.
+          </p>
+        </section>
+
+        <!-- SECURITY -->
+        <section id="security">
+          <h2>Security</h2>
+          <ul class="docs-bullets">
+            <li><strong>Founder-controlled vault</strong> — the wallet is a multisig the founder controls. The client never holds private keys.</li>
+            <li><strong>Read-only frontend</strong> — no withdraw paths exist in the client. All distributions are signed on-chain.</li>
+            <li><strong>Hardware-id voting</strong> — town meeting votes are gated by hardware id, not wallets, to make sybils more expensive.</li>
+            <li><strong>Anti-cheat minigame timing</strong> — sessions shorter than the minimum play time are rejected.</li>
+          </ul>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq">
+          <h2>FAQ</h2>
+          <details><summary>Do I need a wallet to play?</summary><p>No. Guest mode lets you play without a wallet — your contributions just go to a random eligible house. Connect Phantom to claim a specific house and qualify for airdrop tiers.</p></details>
+          <details><summary>What if I lose connection mid-minigame?</summary><p>The session is rejected — score is 0. The cooldown timer doesn't start until a session completes successfully.</p></details>
+          <details><summary>Can multiple people play for the same house?</summary><p>Yes — that's the point. Every member's contribution stacks on the same house yield. Coordinate, time your plays around events, optimize together.</p></details>
+          <details><summary>How do I climb tiers?</summary><p>Hold more $TRENCHLETS. Tiers are read live from your wallet balance. Higher tier = bigger contribution multiplier and bigger airdrop weight.</p></details>
+          <details><summary>What happens if my house has a fire?</summary><p>Run to the burning billboard and press <kbd>E</kbd> to extinguish. Multiple players speeds it up. Until extinguished, your house only earns 30% of contributions.</p></details>
+        </section>
+
+      </article>
+    </div>
+
+    <footer class="lp-footer">
+      <span>TRENCHLETS · built for pump.fun communities · v0.4</span>
+      <nav>
+        <a href="/">Home</a>
+        <span>·</span>
+        <a href="/play.html">Play</a>
+      </nav>
+    </footer>
+
+    <script type="module" src="/src/landing.js"></script>
+  </body>
+</html>

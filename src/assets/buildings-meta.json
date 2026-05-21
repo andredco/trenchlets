@@ -1,0 +1,202 @@
+{
+  "house0": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 128,
+    "drawW": 96,
+    "drawH": 82,
+    "footX": 48,
+    "footY": 78
+  },
+  "house1": {
+    "x": 144,
+    "y": 0,
+    "w": 144,
+    "h": 128,
+    "drawW": 96,
+    "drawH": 82,
+    "footX": 48,
+    "footY": 78
+  },
+  "house2": {
+    "x": 288,
+    "y": 0,
+    "w": 144,
+    "h": 128,
+    "drawW": 96,
+    "drawH": 82,
+    "footX": 48,
+    "footY": 78
+  },
+  "house3": {
+    "x": 432,
+    "y": 0,
+    "w": 144,
+    "h": 128,
+    "drawW": 96,
+    "drawH": 82,
+    "footX": 48,
+    "footY": 78
+  },
+  "house4": {
+    "x": 576,
+    "y": 0,
+    "w": 144,
+    "h": 128,
+    "drawW": 96,
+    "drawH": 82,
+    "footX": 48,
+    "footY": 78
+  },
+  "house5": {
+    "x": 720,
+    "y": 0,
+    "w": 144,
+    "h": 128,
+    "drawW": 96,
+    "drawH": 82,
+    "footX": 48,
+    "footY": 78
+  },
+  "billboard0": {
+    "x": 0,
+    "y": 128,
+    "w": 128,
+    "h": 80,
+    "drawW": 52,
+    "drawH": 42,
+    "footX": 26,
+    "footY": 40
+  },
+  "billboard1": {
+    "x": 128,
+    "y": 128,
+    "w": 128,
+    "h": 80,
+    "drawW": 52,
+    "drawH": 42,
+    "footX": 26,
+    "footY": 40
+  },
+  "billboard2": {
+    "x": 256,
+    "y": 128,
+    "w": 128,
+    "h": 80,
+    "drawW": 52,
+    "drawH": 42,
+    "footX": 26,
+    "footY": 40
+  },
+  "billboard3": {
+    "x": 384,
+    "y": 128,
+    "w": 128,
+    "h": 80,
+    "drawW": 52,
+    "drawH": 42,
+    "footX": 26,
+    "footY": 40
+  },
+  "totem0": {
+    "x": 0,
+    "y": 208,
+    "w": 72,
+    "h": 112,
+    "drawW": 28,
+    "drawH": 54,
+    "footX": 14,
+    "footY": 52
+  },
+  "totem1": {
+    "x": 72,
+    "y": 208,
+    "w": 72,
+    "h": 112,
+    "drawW": 28,
+    "drawH": 54,
+    "footX": 14,
+    "footY": 52
+  },
+  "totem2": {
+    "x": 144,
+    "y": 208,
+    "w": 72,
+    "h": 112,
+    "drawW": 28,
+    "drawH": 54,
+    "footX": 14,
+    "footY": 52
+  },
+  "totem3": {
+    "x": 216,
+    "y": 208,
+    "w": 72,
+    "h": 112,
+    "drawW": 28,
+    "drawH": 54,
+    "footX": 14,
+    "footY": 52
+  },
+  "fountain0": {
+    "x": 0,
+    "y": 320,
+    "w": 112,
+    "h": 88,
+    "drawW": 44,
+    "drawH": 36,
+    "footX": 22,
+    "footY": 32
+  },
+  "fountain1": {
+    "x": 112,
+    "y": 320,
+    "w": 112,
+    "h": 88,
+    "drawW": 44,
+    "drawH": 36,
+    "footX": 22,
+    "footY": 32
+  },
+  "vault0": {
+    "x": 0,
+    "y": 408,
+    "w": 144,
+    "h": 112,
+    "drawW": 96,
+    "drawH": 80,
+    "footX": 48,
+    "footY": 70
+  },
+  "vault1": {
+    "x": 144,
+    "y": 408,
+    "w": 144,
+    "h": 112,
+    "drawW": 96,
+    "drawH": 80,
+    "footX": 48,
+    "footY": 70
+  },
+  "gate0": {
+    "x": 0,
+    "y": 520,
+    "w": 176,
+    "h": 128,
+    "drawW": 96,
+    "drawH": 64,
+    "footX": 48,
+    "footY": 60
+  },
+  "gate1": {
+    "x": 176,
+    "y": 520,
+    "w": 176,
+    "h": 128,
+    "drawW": 96,
+    "drawH": 64,
+    "footX": 48,
+    "footY": 60
+  }
+}

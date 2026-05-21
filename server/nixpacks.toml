@@ -1,0 +1,9 @@
+# Tell Railway's Nixpacks builder to use Node 20.
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["cd .. && npm install && npm run build && cd server && npm install"]
+
+[start]
+cmd = "npm run migrate && npm start"
