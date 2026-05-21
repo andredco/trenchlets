@@ -1140,3 +1140,90 @@ code {
   padding: 2px;
   overflow: hidden;
 }
+
+
+/* =========================================================
+   X NAV ICON
+   ========================================================= */
+.lp-nav .lp-nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  color: #a3a3a3;
+  transition: color 0.15s, background 0.15s;
+}
+.lp-nav .lp-nav-icon::after { display: none; }
+.lp-nav .lp-nav-icon:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* =========================================================
+   TOKEN STATUS BANNER
+   ========================================================= */
+.lp-token-status {
+  margin: 18px 0 14px;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  text-align: center;
+}
+
+.lp-token-status small {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+}
+
+.lp-token-status code {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.92rem;
+  background: none;
+  border: none;
+  padding: 0;
+  word-break: break-all;
+}
+
+.lp-token-status[data-state="pending"] {
+  border-color: rgba(255, 216, 74, 0.25);
+  background: rgba(255, 216, 74, 0.04);
+}
+.lp-token-status[data-state="pending"] code {
+  color: #ffd84a;
+  font-style: italic;
+}
+
+.lp-token-status[data-state="live"] {
+  border-color: rgba(30, 255, 142, 0.4);
+  background: rgba(30, 255, 142, 0.05);
+}
+.lp-token-status[data-state="live"] code {
+  color: #1eff8e;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.lp-token-status[data-state="live"] code:hover { opacity: 0.8; }
+
+.lp-token-x {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+  transition: color 0.15s;
+}
+.lp-token-x:hover { color: #fff; }
+
+.lp-token-status[data-state="live"] .lp-token-x { display: none; }

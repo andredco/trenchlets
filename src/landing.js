@@ -30,6 +30,31 @@ for (const id of ["vaultAddress", "docsVaultAddress"]) {
   if (el) el.textContent = VAULT_CONFIG.address || "Address pending launch";
 }
 
+// ---- Token status ----
+// Shows "Not live yet" by default, flips to the contract address (with
+// click-to-copy) the moment TRENCHLETS_MINT is set in src/data.js.
+const tokenStatusBox = document.querySelector("#tokenStatus");
+const tokenStatusValue = document.querySelector("#tokenStatusValue");
+if (tokenStatusBox && tokenStatusValue) {
+  const mint = VAULT_CONFIG.trenchletsMint;
+  if (mint && mint.length > 20) {
+    tokenStatusBox.dataset.state = "live";
+    tokenStatusValue.textContent = mint;
+    tokenStatusValue.style.cursor = "pointer";
+    tokenStatusValue.title = "Click to copy";
+    tokenStatusValue.addEventListener("click", () => {
+      navigator.clipboard?.writeText(mint).then(
+        () => {
+          const original = tokenStatusValue.textContent;
+          tokenStatusValue.textContent = "Copied!";
+          setTimeout(() => (tokenStatusValue.textContent = original), 1200);
+        },
+        () => {},
+      );
+    });
+  }
+}
+
 // ---- Ticker marquee ----
 const tickerTrack = document.querySelector("#tickerTrack");
 if (tickerTrack) {
