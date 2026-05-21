@@ -3749,3 +3749,47 @@ body.landing-mode .topbar.slim {
   border-color: rgba(30, 255, 142, 0.5);
   transform: translateY(-1px);
 }
+
+
+/* =========================================================
+   SPLASH NAME INPUT
+   ========================================================= */
+.splash-name {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 18px auto 14px;
+  max-width: 320px;
+}
+.splash-name label {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.splash-name input {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(30, 255, 142, 0.3);
+  border-radius: 8px;
+  color: #fff;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.splash-name input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 400;
+}
+.splash-name input:focus {
+  border-color: #1eff8e;
+  background: rgba(30, 255, 142, 0.08);
+}

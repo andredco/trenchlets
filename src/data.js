@@ -331,15 +331,6 @@ export const TASK_CATEGORIES = {
 // World events. Disasters hurt houses until citizens organize.
 export const WORLD_EVENTS = [
   {
-    id: "vault-overflow",
-    title: "VAULT OVERFLOW",
-    desc: "Coins rain over the plaza. Collect them for bonus vault progress.",
-    durationMs: 28000,
-    color: "#ffd84a",
-    weight: 3,
-    kind: "boon",
-  },
-  {
     id: "solar-eclipse",
     title: "SOLAR ECLIPSE",
     desc: "Twilight blankets the city. Task progress is doubled.",

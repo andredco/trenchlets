@@ -504,8 +504,10 @@ function updateCoins(dt) {
 }
 
 function onCoinCollected() {
-  state.vault += 80 + Math.random() * 220;
-  spawnFloat(state.player.x, state.player.y - 16, "+VAULT", "#ffd84a");
+  // No-op. Coins used to add USD to the central vault during the
+  // vault-overflow event, which doesn't fit the real economy (vault
+  // grows from on-chain creator rewards, not in-game pickups).
+  // Function is kept so any stray references don't crash.
 }
 
 function updateWhale(dt) {
@@ -530,11 +532,7 @@ function updateEvents(dt) {
   if (!state.event.active && state.time.totalMs >= state.event.nextAt) {
     startRandomEvent();
   }
-  if (state.event.active?.id === "vault-overflow") {
-    if (Math.random() < 0.045) {
-      spawnCoin();
-    }
-  }
+  // (vault-overflow event removed — no more coin rain into the central vault)
   if (state.event.active?.kind === "disaster") {
     tickDisaster(dt);
   }
@@ -1614,25 +1612,7 @@ function drawLightingOverlay() {
 }
 
 function drawWeatherOverlay() {
-  if (state.event.active?.id === "vault-overflow") {
-    // Confetti sparkles
-    if (Math.random() < 0.4) {
-      const x = Math.random() * GAME_W;
-      const colors = ["#ffd84a", "#ff3ec8", "#5cff9a", "#4ff7ff"];
-      state.particles.push({
-        x: state.cam.x + x,
-        y: state.cam.y - 4,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: 1 + Math.random() * 1.5,
-        gravity: 0.02,
-        life: 2000,
-        maxLife: 2000,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        size: 1,
-        shape: "square",
-      });
-    }
-  }
+  // (vault-overflow confetti removed with the event)
 }
 
 function colorWithAlpha(color, alpha) {
@@ -1741,7 +1721,6 @@ export function getEventMultiplier(communityId) {
   if (ev.id === "solar-eclipse") return 2.0;       // 2x all contributions
   if (ev.id === "raid-hour") return 1.5;            // 1.5x speed bonus
   if (ev.id === "spotlight" && state.event.communityId === communityId) return 3.0; // 3x for spotlighted house
-  if (ev.id === "vault-overflow") return 1.25;      // bonus during overflow
   if (ev.id === "earthquake") return 0.5;           // halved during quake
   if (ev.id === "locust-swarm") return 0.7;         // reduced during locusts
   if (ev.id === "lightning-storm") return 0.6;      // frozen progress

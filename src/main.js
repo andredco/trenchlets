@@ -1261,8 +1261,46 @@ async function connectWallet() {
 // Two paths: connect a Solana wallet (full game), or enter as guest
 // (browse + chat only). Wallet path is wallet sign-in (nonce → sig → token).
 
+// Splash name input — set up the moment the loader finishes revealing
+// the controls. Pre-filled with whatever's stored locally; if nothing
+// is stored we generate a random fun handle so the field never feels
+// blank or scary.
+const splashNameInput = $("#splashNameInput");
+function generateGuestName() {
+  const adj = ["lucky", "chubby", "tiny", "calm", "bold", "spicy", "sleepy", "swift", "fuzzy", "salty"];
+  const noun = ["frog", "cat", "owl", "fox", "wolf", "bear", "lynx", "moth", "duck", "yeti"];
+  return `${adj[Math.floor(Math.random() * adj.length)]}_${noun[Math.floor(Math.random() * noun.length)]}_${Math.floor(Math.random() * 99)}`;
+}
+function setupSplashName() {
+  if (!splashNameInput) return;
+  const stored = mpGetDisplayName();
+  splashNameInput.value = stored || generateGuestName();
+  // Save on every meaningful change so even if the user just closes the tab
+  // mid-thought, their pick persists.
+  splashNameInput.addEventListener("input", () => {
+    const v = splashNameInput.value.trim().slice(0, 24);
+    if (v) mpSetDisplayName(v);
+  });
+  splashNameInput.addEventListener("blur", () => {
+    const v = splashNameInput.value.trim().slice(0, 24);
+    if (!v) {
+      splashNameInput.value = generateGuestName();
+    }
+    mpSetDisplayName(splashNameInput.value);
+  });
+}
+setupSplashName();
+
+function commitSplashName() {
+  if (!splashNameInput) return;
+  const v = splashNameInput.value.trim().slice(0, 24);
+  const final = v || generateGuestName();
+  mpSetDisplayName(final);
+}
+
 enterButton.addEventListener("click", async () => {
   if (enterButton.disabled) return;
+  commitSplashName();
   enterButton.disabled = true;
   const original = enterButton.textContent;
   enterButton.textContent = "CONNECTING…";
@@ -1283,6 +1321,7 @@ enterButton.addEventListener("click", async () => {
 
 guestButton.addEventListener("click", () => {
   // Guest: browse + chat + watch only. No wallet, no contributions allowed.
+  commitSplashName();
   state.player.guest = true;
   closeSplash();
   pushNotification({
