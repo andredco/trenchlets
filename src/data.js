@@ -466,7 +466,7 @@ export const CLAIM_LOCK_MS = 12 * 60 * 60 * 1000;
 export const VAULT_CONFIG = {
   // PUBLIC vault address (founder's multisig). Wallet ONLY receives —
   // the client cannot withdraw from it. Replace at launch.
-  address: "TRENCH1eTSMu1tisigPlace1101111111111111111111",
+  address: "aCHAcAiFhnfrKwZ22DmsTu2WVeMaym466n3hWPBWPFGNZ",
   // Solana RPC endpoint used to read SOL + token balances. Plug in
   // mainnet-beta or a private RPC at deploy.
   rpcUrl: "",

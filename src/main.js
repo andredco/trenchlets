@@ -49,8 +49,8 @@ const mp = getMultiplayer();
 
 const $ = (sel) => document.querySelector(sel);
 
-const STORAGE_KEY = "pumpcity-state-v3";
-const PLAYER_KEY = "pumpcity-player-id";
+const STORAGE_KEY = "trenchlets-state-v1";
+const PLAYER_KEY = "trenchlets-player-id";
 
 // =================== DOM ===================
 
@@ -147,12 +147,18 @@ function initTasks() {
   }
 }
 
-// Resilient defaults: don't let a stale persisted 0 wipe the demo state.
-if (typeof persistent.vault === "number" && persistent.vault > 0) state.vault = persistent.vault;
-if (persistent.communityVault) Object.assign(state.communityVault, persistent.communityVault);
-if (typeof persistent.pumptownTreasury === "number" && persistent.pumptownTreasury > 0) {
-  state.pumptownTreasury = persistent.pumptownTreasury;
-}
+// All economy values come from the server. Never hydrate vault, treasury,
+// per-house balances, or share from local persistence — those numbers are
+// authoritative on the backend (Postgres) and arrive via house_state
+// broadcasts on the websocket.
+//
+// We also explicitly nuke any legacy localStorage values from earlier
+// mock-data builds so users with stale browser caches see a clean $0
+// world until the server tells them otherwise.
+delete persistent.vault;
+delete persistent.communityVault;
+delete persistent.pumptownTreasury;
+delete persistent.taskState;
 
 // =================== ENGINE INIT ===================
 
@@ -187,11 +193,9 @@ async function bootEngine() {
   await new Promise(r => setTimeout(r, 60));
 
   // Restore persistent state now that state.player exists.
-  if (typeof persistent.unclaimedShare === "number") state.player.unclaimedShare = persistent.unclaimedShare;
-  if (typeof persistent.totalClaimed === "number") state.player.totalClaimed = persistent.totalClaimed;
-  if (typeof persistent.pumptownBalance === "number" && persistent.pumptownBalance > 0) {
-    setPumptownBalance(persistent.pumptownBalance);
-  }
+  // Personal share and balance come from the server (or on-chain reads),
+  // never from localStorage. We only persist firstPlayedAt locally to
+  // gate the 12h claim lock until the server tracks it.
   if (typeof persistent.firstPlayedAt === "number") setFirstPlayedAt(persistent.firstPlayedAt);
   else {
     persistent.firstPlayedAt = state.player.firstPlayedAt;
@@ -1110,6 +1114,7 @@ walletButton.addEventListener("click", async () => {
 async function connectWallet() {
   // Phantom provider can also live at window.phantom.solana on newer versions.
   const provider = window.phantom?.solana || window.solana;
+  console.log("[connectWallet] provider:", provider, "isPhantom:", provider?.isPhantom, "userAgent:", navigator.userAgent);
   if (!provider?.isPhantom) {
     // No Phantom detected. Help the user install it.
     const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
@@ -1128,11 +1133,14 @@ async function connectWallet() {
     });
     return false;
   }
+  console.log("[connectWallet] requesting connect…");
   let wallet;
   try {
     const resp = await provider.connect();
     wallet = resp.publicKey.toString();
-  } catch {
+    console.log("[connectWallet] connected:", wallet);
+  } catch (err) {
+    console.warn("[connectWallet] connect rejected:", err);
     pushNotification({ type: "event", title: "WALLET CANCELLED", text: "Approve the wallet connect in Phantom to continue." });
     return false;
   }
@@ -1354,15 +1362,11 @@ function loadState() {
 }
 
 function saveState() {
+  // We only persist client-only UI state. Economy values (vault, treasury,
+  // share, balance, task progress) are server-authoritative — saving them
+  // locally would just resurrect stale numbers on next load.
   persistent = {
     muted: state.audio.muted,
-    vault: state.vault,
-    taskState: state.taskState,
-    pumptownBalance: state.player.pumptownBalance,
-    communityVault: state.communityVault,
-    pumptownTreasury: state.pumptownTreasury,
-    unclaimedShare: state.player.unclaimedShare,
-    totalClaimed: state.player.totalClaimed,
     firstPlayedAt: state.player.firstPlayedAt,
     proposals: persistent.proposals,
     votes: persistent.votes,
