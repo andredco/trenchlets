@@ -1357,6 +1357,9 @@ function drawCharacter(entity) {
     const arrowY = baseY - 6 + bob;
     drawArrow(ctx, footScreenX, arrowY, entity.community ? entity.community.color : "#4ff7ff");
   }
+  // Name tag above the head — visible for the player AND every remote
+  // player so everyone can see who they're walking next to.
+  drawNameTag(entity, footScreenX, baseY);
   // Speed lines while moving fast (raid hour)
   if (entity.moving && state.event.active?.id === "raid-hour" && Math.random() > 0.7) {
     state.particles.push({
@@ -1388,6 +1391,35 @@ function drawArrow(ctx, x, y, color) {
   ctx.fillRect(x - 2, y - 3, 5, 3);
   ctx.fillRect(x - 1, y, 3, 1);
   ctx.fillRect(x, y + 1, 1, 1);
+}
+
+// Floats above each character. Local player gets their stored name from
+// localStorage, remote players get the displayName the server attached
+// to their presence packet. Drawn with the in-canvas pixel font with a
+// dark backdrop so it's readable on any ground color.
+function drawNameTag(entity, footX, baseY) {
+  let name = "";
+  if (entity === state.player) {
+    name = (typeof localStorage !== "undefined" && localStorage.getItem("trenchlets-display-name")) || entity.name || "";
+  } else {
+    name = entity.displayName || entity.name || "";
+  }
+  if (!name) return;
+  // Sanitize + uppercase for the pixel font (3x5 only has uppercase).
+  const text = String(name).toUpperCase().slice(0, 16);
+  const charW = 4;
+  const padding = 2;
+  const w = text.length * charW + padding * 2 - 1;
+  const h = 5 + padding * 2;
+  // Anchor a bit above the head (above the player arrow if present).
+  const tagY = baseY - 14;
+  const tagX = Math.floor(footX - w / 2);
+  // Background pill
+  ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+  ctx.fillRect(tagX, tagY, w, h);
+  // Text — green for the local player, white for everyone else
+  const color = entity === state.player ? "#1eff8e" : "#ffffff";
+  drawText(ctx, text, tagX + padding, tagY + padding, color, false);
 }
 
 function drawCoins() {

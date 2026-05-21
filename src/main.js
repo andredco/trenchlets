@@ -1296,6 +1296,9 @@ function commitSplashName() {
   const v = splashNameInput.value.trim().slice(0, 24);
   const final = v || generateGuestName();
   mpSetDisplayName(final);
+  // Mirror onto state.player so the in-canvas name tag and presence
+  // broadcasts both pick it up immediately, before the WS welcome lands.
+  if (state.player) state.player.name = final;
 }
 
 enterButton.addEventListener("click", async () => {
@@ -1368,6 +1371,8 @@ nameTagButton?.addEventListener("click", () => {
   const clean = next.trim().slice(0, 24);
   if (!clean) return;
   mpSetDisplayName(clean);
+  // Mirror onto state.player so the in-world name tag updates this frame.
+  if (state.player) state.player.name = clean;
   if (nameTagLabel) nameTagLabel.textContent = clean;
 });
 
