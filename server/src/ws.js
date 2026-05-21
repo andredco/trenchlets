@@ -21,6 +21,7 @@ import {
   currentEpochIdx,
 } from "./contributions.js";
 import { subscribe as subscribePrices, getSnapshot as priceSnapshot } from "./prices.js";
+import { subscribeVault, getVaultSnapshot } from "./vaultWatcher.js";
 
 const TYPES = {
   HELLO: "hello",        // client → server: { wallet?, hardwareId, sessionToken? }
@@ -36,6 +37,7 @@ const TYPES = {
   JOIN_HOUSE: "join_house", // client → server: { communityId }
   HOUSE_STATE: "house_state",
   PRICES: "prices",
+  VAULT: "vault",
   ERROR: "error",
 };
 
@@ -58,6 +60,7 @@ export function attachWS(server) {
 
   // Periodic price + house broadcasts
   subscribePrices((snap) => broadcast(TYPES.PRICES, snap));
+  subscribeVault((snap) => broadcast(TYPES.VAULT, snap));
   setInterval(async () => {
     try {
       const standings = await getHouseStandings();
@@ -146,6 +149,7 @@ export function attachWS(server) {
           cooldownMs: cooldown,
           standings,
           prices,
+          vault: getVaultSnapshot(),
           epoch: currentEpochIdx(),
         });
         return;

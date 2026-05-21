@@ -81,7 +81,10 @@ export const state = {
   disaster: { active: null, until: 0, targetId: null, hp: 1 },
   // Vault, treasury, and per-house balances all start at 0. Real values
   // come from on-chain reads (vault wallet) and player contributions.
+  // `vault` is the USD figure shown in the HUD; `vaultSol` is the raw
+  // SOL balance (both arrive on the WS "vault" + "welcome" payloads).
   vault: 0,
+  vaultSol: 0,
   vaultRate: 0,
   communityVault: Object.fromEntries(COMMUNITIES.map((c) => [c.id, 0])),
   pumptownTreasury: 0,

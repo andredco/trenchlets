@@ -455,9 +455,9 @@ export const CLAIM_LOCK_MS = 3 * 60 * 60 * 1000;
 // rather than synthetic numbers. Users still play and accumulate
 // pending contributions; settlement happens on-chain post-launch.
 export const VAULT_CONFIG = {
-  // PUBLIC vault address (founder's multisig). Wallet ONLY receives —
-  // the client cannot withdraw from it. Replace at launch.
-  address: "aCHAcAiFhnfrKwZ22DmsTu2WVeMaym466n3hWPBWPFGNZ",
+  // PUBLIC vault address (dev wallet — pump.fun creator rewards land here).
+  // Wallet ONLY receives. The client cannot withdraw from it.
+  address: "CHAcAiFhnfrKwZ22DmsTu2WVeMaym466n3hWPBWPFGNZ",
   // Solana RPC endpoint used to read SOL + token balances. Plug in
   // mainnet-beta or a private RPC at deploy.
   rpcUrl: "",

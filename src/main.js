@@ -341,6 +341,26 @@ mp.on("house_state", (payload) => {
   }
 });
 
+// Live vault snapshot — server polls the dev wallet's SOL balance every
+// 30s and pushes the USD value here. This is the authoritative number
+// for the CENTRAL VAULT card in the HUD; it grows when pump.fun creator
+// rewards land in the wallet.
+mp.on("vault", (payload) => {
+  if (!payload || typeof payload.usd !== "number") return;
+  state.vault = payload.usd;
+  state.vaultSol = payload.sol;
+  state.vaultRate = 0; // we no longer fake an accrual rate
+});
+
+// Same data is also nested inside the WELCOME payload so the HUD shows
+// the right number from the very first frame after connect.
+mp.on("welcome", (payload) => {
+  if (payload?.vault && typeof payload.vault.usd === "number") {
+    state.vault = payload.vault.usd;
+    state.vaultSol = payload.vault.sol;
+  }
+});
+
 mp.on("chat", (payload) => {
   if (!payload) return;
   appendChat({

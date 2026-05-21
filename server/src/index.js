@@ -17,6 +17,7 @@ import { startPriceFeed, getSnapshot } from "./prices.js";
 import { attachWS } from "./ws.js";
 import { adminRouter } from "./admin/routes.js";
 import { seedCommunityMeta } from "./seedCommunities.js";
+import { startVaultWatcher, getVaultSnapshot } from "./vaultWatcher.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 3000;
@@ -44,7 +45,7 @@ app.get("/api/config", (req, res) => {
   res.set("Cache-Control", "public, max-age=30"); // brief cache, fast updates
   res.json({
     trenchletsMint: process.env.TRENCHLETS_MINT || "",
-    vaultAddress: process.env.VAULT_ADDRESS || "aCHAcAiFhnfrKwZ22DmsTu2WVeMaym466n3hWPBWPFGNZ",
+    vaultAddress: process.env.VAULT_ADDRESS || "CHAcAiFhnfrKwZ22DmsTu2WVeMaym466n3hWPBWPFGNZ",
     epochLengthMs: 3 * 60 * 60 * 1000,
     distributionPct: 50,
     epoch: currentEpochIdx(),
@@ -104,6 +105,11 @@ app.get("/api/tier/:wallet", async (req, res) => {
 
 app.get("/api/prices", (req, res) => {
   res.json(getSnapshot());
+});
+
+// Live vault balance (SOL + USD) — polled every 30s from chain.
+app.get("/api/vault", (req, res) => {
+  res.json(getVaultSnapshot());
 });
 
 // ---- TOWN MEETING PROPOSALS ----
@@ -231,6 +237,7 @@ server.listen(PORT, async () => {
   } else {
     console.log("No TRACK_MINTS configured — price feed idle until tokens are configured");
   }
+  startVaultWatcher();
 });
 
 // Graceful shutdown
