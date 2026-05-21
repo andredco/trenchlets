@@ -41,6 +41,7 @@ import {
   getEventMultiplier,
 } from "./engine.js";
 import { SFX, setMuted } from "./audio.js";
+import { bakeCharacterHD, makeCharacterPalette, HAIR_COLORS, SKIN_TONES } from "./sprites.js";
 import { launchMinigame, isMinigameActive, getMinigameCooldown } from "./minigames/index.js";
 import { getMultiplayer, getPlayerId, MSG, saveSession as mpSaveSession, getDisplayName as mpGetDisplayName, setDisplayName as mpSetDisplayName, getMe } from "./multiplayer.js";
 
@@ -57,7 +58,7 @@ const canvas = $("#gameCanvas");
 const minimap = $("#minimap");
 const splash = $("#splash");
 const enterButton = $("#enterButton");
-const guestButton = $("#guestButton");
+// guestButton was removed — Trenchlets is wallet-gated now.
 const walletButton = $("#walletButton");
 const walletLabel = $("#walletLabel");
 const muteButton = $("#muteButton");
@@ -132,21 +133,17 @@ function initTasks() {
       if (existing) {
         state.taskState[community.id][task.id] = existing;
       } else {
+        // Real economy: tasks start empty. Progress only grows from
+        // verified minigame contributions (server-authoritative).
         state.taskState[community.id][task.id] = {
-          progress: 12 + Math.random() * 38,
-          uniqueCitizens: Math.floor(task.minCitizens * (0.3 + Math.random() * 0.6)),
-          startedAt: Date.now() - Math.random() * task.durationMs * 0.4,
+          progress: 0,
+          uniqueCitizens: 0,
+          startedAt: Date.now(),
           lastContribution: {},
           completedCount: 0,
         };
       }
     }
-  }
-  const showcase = state.taskState.fartcoin?.[TASKS[0].id];
-  if (showcase && showcase.progress < 100) {
-    showcase.progress = 100;
-    showcase.uniqueCitizens = TASKS[0].minCitizens + 20;
-    showcase.startedAt = Date.now() - TASKS[0].durationMs - 60 * 1000;
   }
 }
 
@@ -243,25 +240,112 @@ setInterval(() => {
   });
 }, 200);
 
-// Listen for other players' presence and contributions.
-const remotePlayers = new Map(); // id → { x, y, dir, ... , lastSeen }
-mp.on(MSG.PRESENCE, (payload, from) => {
-  if (from === getPlayerId()) return;
-  remotePlayers.set(from, { ...payload, lastSeen: Date.now() });
-});
-mp.on(MSG.CONTRIBUTION, (payload, from) => {
-  if (from === getPlayerId()) return;
-  // Apply remote contribution to local task state so everyone sees progress.
-  const { communityId, taskId, percent } = payload;
-  const d = state.taskState[communityId]?.[taskId];
-  if (d) {
-    d.progress = Math.min(100, d.progress + percent);
-    d.uniqueCitizens += 1;
+// Listen for other players' presence and contributions. Each unique
+// remote player gets their character sprite baked once from the
+// community palette and rendered by the engine alongside the local player.
+const remotePlayers = state.remotePlayers; // shared with engine
+mp.on("presence", (payload) => {
+  if (!payload || payload.id === undefined) return;
+  if (state.player && payload.id === getMe()?.id) return;
+  let rp = remotePlayers.get(payload.id);
+  const community = payload.communityId
+    ? COMMUNITIES.find((c) => c.id === payload.communityId)
+    : null;
+  if (!rp) {
+    // New remote — bake their sprite set.
+    rp = {
+      id: payload.id,
+      x: payload.x,
+      y: payload.y,
+      dir: payload.dir || "down",
+      flipX: !!payload.flipX,
+      animFrame: 0,
+      animTimer: 0,
+      moving: false,
+      community,
+      name: payload.displayName || "trenchlet",
+      bubble: null,
+      sprites: null,
+      lastSeen: Date.now(),
+    };
+    bakeRemoteSprites(rp, community);
+    remotePlayers.set(payload.id, rp);
+  } else {
+    // Smooth-ish position update (snap for now; can lerp later).
+    const oldX = rp.x;
+    const oldY = rp.y;
+    rp.x = payload.x;
+    rp.y = payload.y;
+    rp.dir = payload.dir || rp.dir;
+    rp.flipX = !!payload.flipX;
+    rp.moving = oldX !== payload.x || oldY !== payload.y;
+    rp.name = payload.displayName || rp.name;
+    if (community && community.id !== rp.community?.id) {
+      rp.community = community;
+      bakeRemoteSprites(rp, community);
+    }
+    rp.lastSeen = Date.now();
   }
 });
-mp.on(MSG.CHAT, (payload, from) => {
-  if (from === getPlayerId()) return;
-  appendChat({ who: payload.who || "remote", text: payload.text, cls: "remote" });
+mp.on("presence_leave", (payload) => {
+  if (payload?.id) remotePlayers.delete(payload.id);
+});
+
+function bakeRemoteSprites(rp, community) {
+  // Use the community palette (or a neutral one if unclaimed).
+  const palette = community
+    ? makeCharacterPalette(community, HAIR_COLORS[3], SKIN_TONES[0])
+    : makeCharacterPalette(
+        { color: "#9d6bff", accent: "#5a4282", body: "#9d6bff", bodyShade: "#3a2658" },
+        HAIR_COLORS[0], SKIN_TONES[0],
+      );
+  rp.palette = palette;
+  rp.sprites = bakeCharacterHD(palette);
+}
+
+// Reap stale remotes every 10s (no presence in 8 seconds = considered offline).
+setInterval(() => {
+  const cutoff = Date.now() - 8000;
+  for (const [id, rp] of remotePlayers) {
+    if (rp.lastSeen < cutoff) remotePlayers.delete(id);
+  }
+}, 5000);
+
+mp.on("contrib_ok", () => {
+  // Server confirmed our contribution — refresh task list.
+  renderTasks();
+});
+
+mp.on("contrib_err", (payload) => {
+  pushNotification({
+    type: "event",
+    title: "CONTRIBUTION REJECTED",
+    text: payload?.reason || "Server rejected the score.",
+  });
+});
+
+mp.on("house_state", (payload) => {
+  // Authoritative server standings — overwrite local progress display.
+  if (!payload?.standings) return;
+  for (const row of payload.standings) {
+    const houseTasks = state.taskState[row.community_id];
+    if (!houseTasks) continue;
+    // Distribute the epoch_yield evenly across our 3 task slots so the
+    // dashboard bars reflect the server's total.
+    const slot = Number(row.epoch_yield) / 3;
+    for (const taskId in houseTasks) {
+      houseTasks[taskId].progress = Math.min(100, slot);
+    }
+  }
+});
+
+mp.on("chat", (payload) => {
+  if (!payload) return;
+  appendChat({
+    who: payload.displayName || "trenchlet",
+    text: payload.text,
+    cls: "remote",
+  });
 });
 
 // Expose remotePlayers for engine to render other players.
@@ -306,7 +390,7 @@ window.addEventListener("keydown", (event) => {
   if (KEYS_TO_TRACK.has(key)) {
     state.input.keys.add(key);
     event.preventDefault();
-    if (state.ui.splashOpen) closeSplash();
+    // Splash is wallet-gated — keyboard input doesn't close it.
   }
   if (key === "e") {
     triggerInteract();
@@ -320,9 +404,7 @@ window.addEventListener("keydown", (event) => {
     chatInput.focus();
     state.ui.chatFocused = true;
   }
-  if (key === " ") {
-    if (state.ui.splashOpen) closeSplash();
-  }
+  // Space no longer closes the splash either.
 });
 
 window.addEventListener("keyup", (event) => {
@@ -334,7 +416,7 @@ window.addEventListener("blur", () => state.input.keys.clear());
 
 canvas.addEventListener("click", () => {
   canvas.focus();
-  if (state.ui.splashOpen) closeSplash();
+  // No auto-close: wallet sign-in is the only way past the splash.
 });
 
 chatInput.addEventListener("focus", () => {
@@ -391,7 +473,7 @@ function setupJoystick() {
     active = true;
     const rect = joystick.getBoundingClientRect();
     center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-    if (state.ui.splashOpen) closeSplash();
+    // Splash is wallet-gated. Joystick doesn't bypass.
   });
   window.addEventListener("touchmove", (e) => {
     if (!active) return;
@@ -405,10 +487,9 @@ function setupJoystick() {
 // =================== INTERACTIONS ===================
 
 function triggerInteract() {
-  if (state.ui.splashOpen) {
-    closeSplash();
-    return;
-  }
+  // Splash is wallet-gated. E doesn't close it any more — only a
+  // successful wallet sign-in does. Ignore the press while it's open.
+  if (state.ui.splashOpen) return;
   const target = tryInteract();
   if (!target) return;
   if (target.kind === "totem") {
@@ -519,8 +600,13 @@ function joinCommunity(communityId) {
 }
 
 function contributeAtBoard(communityId, taskId) {
-  if (!state.player.community && !state.player.guest) {
-    pushNotification({ type: "event", title: "PICK A SIDE", text: "Press START or enter as guest before contributing." });
+  const me = getMe?.();
+  if (!state.player.wallet || !me?.authed) {
+    pushNotification({
+      type: "event",
+      title: "WALLET REQUIRED",
+      text: "Sign in with your Solana wallet to play the boards.",
+    });
     return;
   }
   if (isMinigameActive()) return;
@@ -577,11 +663,10 @@ function contributeAtBoard(communityId, taskId) {
 }
 
 function pickContributionOwner(community) {
+  // Wallet-only world: must have claimed a house. Returns the player's
+  // own house, or the community whose board they're at as a fallback
+  // (which contributeAtBoard rejects upstream if no wallet is signed in).
   if (state.player.community) return state.player.community;
-  if (state.player.guest) {
-    const pool = COMMUNITIES.filter((c) => c.id !== community.id || COMMUNITIES.length === 1);
-    return pool[Math.floor(Math.random() * pool.length)] || community;
-  }
   return community;
 }
 
@@ -816,9 +901,9 @@ function updateIdentityHud() {
     identityDot.style.background = p.community.color;
     chatPrefix.textContent = `${p.community.ticker.toLowerCase()}>`;
     chatPrefix.style.color = p.community.color;
-  } else if (p.guest) {
-    identityName.textContent = "GUEST";
-    identityMeta.textContent = "Boosting a random community";
+  } else if (!p.wallet) {
+    identityName.textContent = "NOT SIGNED IN";
+    identityMeta.textContent = "Connect a wallet to enter";
     identityDot.style.background = "#4ff7ff";
     chatPrefix.textContent = "guest>";
     chatPrefix.style.color = "#4ff7ff";
@@ -1009,59 +1094,66 @@ function escape(value) {
 
 walletButton.addEventListener("click", connectWallet);
 
+// Returns true on a fully-signed sign-in, false otherwise. The splash
+// only closes when this returns true. No demo-wallet fallback in
+// production: if Phantom isn't installed, we tell the user.
 async function connectWallet() {
   const provider = window.solana;
   if (!provider?.isPhantom) {
-    setWallet(`demo-${Math.random().toString(16).slice(2, 8)}`);
-    SFX.wallet();
-    pushNotification({ type: "community", title: "DEMO WALLET", text: "No Phantom found · using demo wallet for the showcase." });
-    updateIdentityHud();
-    saveState();
-    return;
+    pushNotification({
+      type: "event",
+      title: "PHANTOM REQUIRED",
+      text: "Install Phantom (phantom.app) to enter Trenchlets.",
+    });
+    return false;
   }
+  let wallet;
   try {
     const resp = await provider.connect();
-    const wallet = resp.publicKey.toString();
-    setWallet(wallet);
-    // Server-side sign-in: request a nonce, sign it, post the signature.
-    try {
-      const nonceRes = await fetch(`/api/auth/nonce?wallet=${encodeURIComponent(wallet)}`);
-      if (!nonceRes.ok) throw new Error("nonce fetch failed");
-      const { message } = await nonceRes.json();
-      const encoded = new TextEncoder().encode(message);
-      const signed = await provider.signMessage(encoded, "utf8");
-      // Phantom returns signature as Uint8Array — base58 encode.
-      const sigB58 = bs58Encode(signed.signature);
-      const verifyRes = await fetch("/api/auth/verify", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ wallet, signature: sigB58 }),
-      });
-      if (!verifyRes.ok) throw new Error("signature rejected");
-      const { token, player } = await verifyRes.json();
-      const expiresAt = Date.now() + 60 * 60 * 1000;
-      mpSaveSession(token, wallet, expiresAt);
-      // Re-handshake the websocket with the new session so server upgrades us
-      // from guest to authed.
-      mp.send("hello", { wallet, hardwareId: null, sessionToken: token });
-      pushNotification({
-        type: "community",
-        title: "SIGNED IN",
-        text: `Welcome, ${player.display_name}.`,
-      });
-    } catch (err) {
-      pushNotification({
-        type: "event",
-        title: "SIGN-IN SKIPPED",
-        text: "Connected, but you didn't sign the message. Browse-only.",
-      });
-    }
-    SFX.wallet();
+    wallet = resp.publicKey.toString();
   } catch {
-    pushNotification({ type: "event", title: "WALLET CANCELLED", text: "Guest mode is still open." });
+    pushNotification({ type: "event", title: "WALLET CANCELLED", text: "Approve the wallet connect in Phantom to enter." });
+    return false;
   }
-  updateIdentityHud();
-  saveState();
+  // Server-side sign-in: nonce → sign → verify → session token.
+  try {
+    const nonceRes = await fetch(`/api/auth/nonce?wallet=${encodeURIComponent(wallet)}`);
+    if (!nonceRes.ok) throw new Error("nonce fetch failed");
+    const { message } = await nonceRes.json();
+    const encoded = new TextEncoder().encode(message);
+    const signed = await provider.signMessage(encoded, "utf8");
+    const sigB58 = bs58Encode(signed.signature);
+    const verifyRes = await fetch("/api/auth/verify", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ wallet, signature: sigB58 }),
+    });
+    if (!verifyRes.ok) throw new Error("signature rejected");
+    const { token, player } = await verifyRes.json();
+    const expiresAt = Date.now() + 60 * 60 * 1000;
+    mpSaveSession(token, wallet, expiresAt);
+    setWallet(wallet);
+    // Re-handshake the websocket so server upgrades us from anonymous to authed.
+    mp.send("hello", { wallet, hardwareId: null, sessionToken: token });
+    pushNotification({
+      type: "community",
+      title: "SIGNED IN",
+      text: `Welcome, ${player.display_name}.`,
+    });
+    SFX.wallet();
+    updateIdentityHud();
+    saveState();
+    return true;
+  } catch {
+    // Disconnect Phantom so future clicks re-prompt.
+    try { await provider.disconnect(); } catch {}
+    pushNotification({
+      type: "event",
+      title: "SIGNATURE REQUIRED",
+      text: "Sign the message in Phantom to prove you own the wallet.",
+    });
+    return false;
+  }
 }
 
 // Tiny base58 encoder so we don't pull a whole bs58 dep into the client.
@@ -1087,16 +1179,26 @@ function bs58Encode(bytes) {
 }
 
 // =================== SPLASH / ENTER ===================
+// Wallet-gated. Pressing the splash button triggers connectWallet().
+// Only on a successful sign-in does the splash close. No guest mode.
 
-enterButton.addEventListener("click", () => {
-  closeSplash();
-  if (!state.player.community && !state.player.guest) {
-    setPlayerCommunity(null, true);
+enterButton.addEventListener("click", async () => {
+  // Block double-clicks while a sign-in is in flight.
+  if (enterButton.disabled) return;
+  enterButton.disabled = true;
+  enterButton.textContent = "CONNECTING…";
+  try {
+    const ok = await connectWallet();
+    if (ok) {
+      closeSplash();
+    } else {
+      enterButton.textContent = "CONNECT WALLET TO ENTER";
+      enterButton.disabled = false;
+    }
+  } catch {
+    enterButton.textContent = "CONNECT WALLET TO ENTER";
+    enterButton.disabled = false;
   }
-});
-guestButton.addEventListener("click", () => {
-  setPlayerCommunity(null, true);
-  closeSplash();
 });
 
 function closeSplash() {
@@ -1105,19 +1207,12 @@ function closeSplash() {
   setSplash(false);
   splash.classList.add("hidden");
   setTimeout(() => splash.remove(), 350);
-  if (!state.player.guest && !state.player.community) {
-    setPlayerCommunity(null, true);
-  }
+  // No more guest-mode fallback. Splash only closes after successful sign-in.
   SFX.splash();
   pushNotification({
     type: "event",
     title: "WELCOME TO TRENCHLETS",
-    text: "Walk to a totem and press E to join. Find the billboard to contribute.",
-  });
-  appendChat({
-    who: "system",
-    text: "world online. find totems, push tasks, catch events.",
-    cls: "system",
+    text: "Walk to a totem and press E to join a house.",
   });
   canvas.focus();
 }
@@ -1206,7 +1301,7 @@ function formatHuman(value) {
 
 function getPlayerHandle() {
   if (state.player.community) return state.player.community.ticker.toLowerCase() + "_you";
-  return state.player.guest ? "guest" : "anon";
+  return "trenchlet";
 }
 
 function shortWallet(wallet) {
@@ -1348,7 +1443,7 @@ function renderSimpleView() {
   const tier = player.tier;
   const remaining = Math.max(0, claimUnlockAt() - Date.now());
   lines.push("== YOU ==");
-  lines.push(`Identity: ${player.community ? player.community.name : (player.guest ? "GUEST" : "WAITING")}`);
+  lines.push(`Identity: ${player.community ? player.community.name : (player.wallet ? "UNCLAIMED" : "NOT SIGNED IN")}`);
   lines.push(`Wallet: ${player.wallet ? shortWallet(player.wallet) : "—"}`);
   lines.push(`Tier: ${tier.label} (${formatHuman(player.pumptownBalance)} TRENCHLETS)`);
   lines.push(`Unclaimed share: ${formatCurrency(player.unclaimedShare)}`);

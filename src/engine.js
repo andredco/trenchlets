@@ -79,12 +79,18 @@ export const state = {
   event: { active: null, until: 0, nextAt: 0, communityId: null },
   // disasters carry richer metadata than boon events (target house, hp, etc.)
   disaster: { active: null, until: 0, targetId: null, hp: 1 },
-  vault: 42069,
-  vaultRate: TUNING.VAULT_BASE_RATE,
-  communityVault: Object.fromEntries(COMMUNITIES.map((c) => [c.id, 6800 + Math.random() * 4200])),
-  pumptownTreasury: 18420,
+  // Vault, treasury, and per-house balances all start at 0. Real values
+  // come from on-chain reads (vault wallet) and player contributions.
+  vault: 0,
+  vaultRate: 0,
+  communityVault: Object.fromEntries(COMMUNITIES.map((c) => [c.id, 0])),
+  pumptownTreasury: 0,
   taskState: {},
   raidLog: [],
+  // Remote players (other connected wallets). Populated by main.js from
+  // websocket presence broadcasts. id → { x, y, dir, flipX, displayName,
+  // communityId, sprites, lastSeen }
+  remotePlayers: new Map(),
   ui: {
     splashOpen: true,
     chatFocused: false,
@@ -181,9 +187,8 @@ function initPlayer() {
     moving: false,
     animFrame: 0,
     animTimer: 0,
-    name: "guest",
+    name: "trenchlet",
     community: null,
-    guest: true,
     wallet: null,
     palette,
     sprites: bakeCharacterHD(palette),
@@ -206,17 +211,9 @@ function pickSpawn() {
 }
 
 function spawnNPCs() {
+  // Multiplayer-only: the world only renders real players received via
+  // the websocket. No mock NPCs walking around any more.
   state.npcs = [];
-  // Smaller per-house count since we have 15 houses now.
-  for (const community of COMMUNITIES) {
-    const count = 3 + Math.floor(Math.random() * 2);
-    for (let i = 0; i < count; i++) {
-      state.npcs.push(makeNPC(community));
-    }
-  }
-  for (let i = 0; i < 8; i++) {
-    state.npcs.push(makeNPC(COMMUNITIES[Math.floor(Math.random() * COMMUNITIES.length)]));
-  }
 }
 
 function makeNPC(community) {
@@ -813,11 +810,10 @@ export function tryInteract() {
   return target;
 }
 
-export function setPlayerCommunity(communityId, asGuest = false) {
+export function setPlayerCommunity(communityId) {
   const community = communityId ? COMMUNITIES.find((c) => c.id === communityId) : null;
   const p = state.player;
   p.community = community;
-  p.guest = asGuest || !community;
   if (community) {
     const palette = makeCharacterPalette(community, HAIR_COLORS[3], SKIN_TONES[0]);
     p.palette = palette;
@@ -871,8 +867,8 @@ export function applyTaskResolution({ communityId, percent, split }) {
   state.vault = Math.max(0, state.vault - released);
   state.communityVault[communityId] = (state.communityVault[communityId] || 0) + vaultPart;
   state.pumptownTreasury += treasuryPart;
-  const eligible =
-    state.player.community?.id === communityId || state.player.guest;
+  // Player share: only your own house earns into your personal share.
+  const eligible = state.player.community?.id === communityId;
   let actualPlayerPart = 0;
   if (eligible) {
     actualPlayerPart = playerPart;
@@ -1011,11 +1007,20 @@ function drawObjectsAndEntities() {
     y: state.player.y,
     draw: () => drawCharacter(state.player),
   });
-  // NPCs
+  // NPCs (always empty — kept for legacy compatibility, real players
+  // come through state.remotePlayers).
   for (const n of state.npcs) {
     list.push({
       y: n.y,
       draw: () => drawCharacter(n),
+    });
+  }
+  // Remote players via websocket
+  for (const rp of state.remotePlayers.values()) {
+    if (!rp.sprites) continue; // not yet baked
+    list.push({
+      y: rp.y,
+      draw: () => drawCharacter(rp),
     });
   }
   list.sort((a, b) => a.y - b.y);
