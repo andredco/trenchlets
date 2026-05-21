@@ -1,6 +1,9 @@
 // =========================================================
 // Trenchlets · landing + docs
 // =========================================================
+// Fetches /api/config from the server so values like TRENCHLETS_MINT
+// and the vault address come straight from Railway env vars. Set them
+// ONCE in Railway, no code changes needed at launch.
 
 import { COMMUNITIES, VAULT_CONFIG } from "./data.js";
 
@@ -24,36 +27,56 @@ if (grid) {
   }
 }
 
-// ---- Vault address ----
-for (const id of ["vaultAddress", "docsVaultAddress"]) {
-  const el = document.querySelector(`#${id}`);
-  if (el) el.textContent = VAULT_CONFIG.address || "Address pending launch";
-}
-
-// ---- Token status ----
-// Shows "Not live yet" by default, flips to the contract address (with
-// click-to-copy) the moment TRENCHLETS_MINT is set in src/data.js.
-const tokenStatusBox = document.querySelector("#tokenStatus");
-const tokenStatusValue = document.querySelector("#tokenStatusValue");
-if (tokenStatusBox && tokenStatusValue) {
-  const mint = VAULT_CONFIG.trenchletsMint;
-  if (mint && mint.length > 20) {
-    tokenStatusBox.dataset.state = "live";
-    tokenStatusValue.textContent = mint;
-    tokenStatusValue.style.cursor = "pointer";
-    tokenStatusValue.title = "Click to copy";
-    tokenStatusValue.addEventListener("click", () => {
-      navigator.clipboard?.writeText(mint).then(
-        () => {
-          const original = tokenStatusValue.textContent;
-          tokenStatusValue.textContent = "Copied!";
-          setTimeout(() => (tokenStatusValue.textContent = original), 1200);
-        },
-        () => {},
-      );
-    });
+// ---- Live config from server (mint + vault address) ----
+// Pull once on load. If the request fails (offline, server down), fall
+// back to whatever's compiled into data.js — which during development is
+// the placeholder values, in production gets overridden anyway.
+async function loadConfig() {
+  try {
+    const r = await fetch("/api/config", { headers: { Accept: "application/json" } });
+    if (!r.ok) throw new Error(`config ${r.status}`);
+    return await r.json();
+  } catch (err) {
+    console.warn("config fetch failed; using compiled defaults:", err);
+    return {
+      trenchletsMint: VAULT_CONFIG.trenchletsMint || "",
+      vaultAddress: VAULT_CONFIG.address || "",
+    };
   }
 }
+
+loadConfig().then((cfg) => {
+  // ---- Vault address (landing + docs) ----
+  for (const id of ["vaultAddress", "docsVaultAddress"]) {
+    const elById = document.querySelector(`#${id}`);
+    if (elById) elById.textContent = cfg.vaultAddress || "Address pending launch";
+  }
+
+  // ---- Token status banner ----
+  // Shows "Not live yet" until the server returns a real mint address
+  // (which happens the moment TRENCHLETS_MINT is set in Railway env).
+  const tokenStatusBox = document.querySelector("#tokenStatus");
+  const tokenStatusValue = document.querySelector("#tokenStatusValue");
+  if (tokenStatusBox && tokenStatusValue) {
+    const mint = cfg.trenchletsMint;
+    if (mint && mint.length > 20) {
+      tokenStatusBox.dataset.state = "live";
+      tokenStatusValue.textContent = mint;
+      tokenStatusValue.style.cursor = "pointer";
+      tokenStatusValue.title = "Click to copy";
+      tokenStatusValue.addEventListener("click", () => {
+        navigator.clipboard?.writeText(mint).then(
+          () => {
+            const original = tokenStatusValue.textContent;
+            tokenStatusValue.textContent = "Copied!";
+            setTimeout(() => (tokenStatusValue.textContent = original), 1200);
+          },
+          () => {},
+        );
+      });
+    }
+  }
+});
 
 // ---- Ticker marquee ----
 const tickerTrack = document.querySelector("#tickerTrack");

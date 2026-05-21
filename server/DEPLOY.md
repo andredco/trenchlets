@@ -32,7 +32,8 @@ In the Trenchlets service's **Variables** tab:
 |---|---|
 | `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` |
 | `RPC_URL` | Your Helius RPC URL |
-| `TRENCHLETS_MINT` | Empty for now — fill once token launches |
+| `TRENCHLETS_MINT` | Empty for now — fill once token launches. Updates everywhere on next page load. |
+| `VAULT_ADDRESS` | Your vault wallet pubkey. Defaults to the existing one if unset. |
 | `TRACK_MINTS` | Empty for now — fill with comma-separated mints |
 | `IP_SALT` | Generate a random string with `openssl rand -hex 32` |
 

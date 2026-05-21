@@ -35,6 +35,22 @@ app.set("trust proxy", 1); // Railway puts us behind a proxy
 // ---- HEALTH ----
 app.get("/health", (req, res) => res.json({ ok: true, epoch: currentEpochIdx() }));
 
+// ---- PUBLIC CONFIG ----
+// Single source of truth for "what is the current state of the world" that
+// the frontend can poll. Lets you set TRENCHLETS_MINT (and other launch
+// params) ONCE in Railway env vars and have every page reflect it without
+// any code changes.
+app.get("/api/config", (req, res) => {
+  res.set("Cache-Control", "public, max-age=30"); // brief cache, fast updates
+  res.json({
+    trenchletsMint: process.env.TRENCHLETS_MINT || "",
+    vaultAddress: process.env.VAULT_ADDRESS || "aCHAcAiFhnfrKwZ22DmsTu2WVeMaym466n3hWPBWPFGNZ",
+    epochLengthMs: 3 * 60 * 60 * 1000,
+    distributionPct: 50,
+    epoch: currentEpochIdx(),
+  });
+});
+
 // ---- AUTH ----
 app.get("/api/auth/nonce", (req, res) => {
   const wallet = String(req.query.wallet || "");
