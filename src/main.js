@@ -45,7 +45,7 @@ import { bakeCharacterHD, makeCharacterPalette, HAIR_COLORS, SKIN_TONES } from "
 import { launchMinigame, isMinigameActive, getMinigameCooldown } from "./minigames/index.js";
 import { getMultiplayer, getPlayerId, MSG, saveSession as mpSaveSession, getDisplayName as mpGetDisplayName, setDisplayName as mpSetDisplayName, getMe } from "./multiplayer.js";
 import { pickWallet } from "./wallet-picker.js";
-import { adapter as walletAdapter } from "./wallets.js";
+import bs58 from "bs58";
 
 const mp = getMultiplayer();
 
@@ -1121,33 +1121,35 @@ walletButton.addEventListener("click", async () => {
 // Desktop + no extension: open phantom.app/download in a new tab.
 // Mobile: deep-link into the Phantom app's in-app browser.
 async function connectWallet() {
-  // Open the picker — Wallet Standard discovery handles every modern wallet.
-  const walletEntry = await pickWallet();
-  if (!walletEntry) {
+  const picked = await pickWallet();
+  if (!picked) {
     console.log("[connectWallet] cancelled");
     return false;
   }
-  console.log("[connectWallet] picked:", walletEntry.name);
+  const adapter = picked.adapter;
+  console.log("[connectWallet] picked:", adapter.name, "ready:", adapter.readyState);
 
-  let api;
+  // 1. Connect — opens the wallet UI.
   try {
-    api = await walletAdapter(walletEntry);
-  } catch (err) {
-    console.warn("[connectWallet] adapter failed:", err);
-    pushNotification({ type: "event", title: "WALLET ERROR", text: err.message });
-    return false;
-  }
-
-  // 1. Connect — pops the wallet UI for approval.
-  let wallet;
-  try {
-    wallet = await api.connect();
-    console.log("[connectWallet] connected:", wallet);
+    if (!adapter.connected) {
+      await adapter.connect();
+    }
   } catch (err) {
     console.warn("[connectWallet] connect rejected:", err);
-    pushNotification({ type: "event", title: "WALLET CANCELLED", text: `Approve the connection in ${walletEntry.name}.` });
+    pushNotification({
+      type: "event",
+      title: "WALLET CANCELLED",
+      text: `Approve the connection in ${adapter.name}.`,
+    });
     return false;
   }
+
+  const wallet = adapter.publicKey?.toString();
+  if (!wallet) {
+    console.warn("[connectWallet] no public key after connect");
+    return false;
+  }
+  console.log("[connectWallet] connected:", wallet);
 
   // 2. Server sign-in: nonce → sign → verify → token.
   try {
@@ -1155,8 +1157,8 @@ async function connectWallet() {
     if (!nonceRes.ok) throw new Error("nonce fetch failed");
     const { message } = await nonceRes.json();
     const encoded = new TextEncoder().encode(message);
-    const sigBytes = await api.signMessage(encoded);
-    const sigB58 = bs58Encode(sigBytes);
+    const sigBytes = await adapter.signMessage(encoded);
+    const sigB58 = bs58.encode(sigBytes);
     const verifyRes = await fetch("/api/auth/verify", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -1180,37 +1182,18 @@ async function connectWallet() {
     return true;
   } catch (err) {
     console.warn("sign-in failed:", err);
-    try { await api.disconnect(); } catch {}
+    try { await adapter.disconnect(); } catch {}
     pushNotification({
       type: "event",
       title: "SIGNATURE REQUIRED",
-      text: `Sign the message in ${walletEntry.name} to prove you own the wallet.`,
+      text: `Sign the message in ${adapter.name} to prove you own the wallet.`,
     });
     return false;
   }
 }
 
-// Tiny base58 encoder so we don't pull a whole bs58 dep into the client.
-function bs58Encode(bytes) {
-  const ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-  if (!(bytes instanceof Uint8Array)) bytes = new Uint8Array(bytes);
-  let zeros = 0;
-  while (zeros < bytes.length && bytes[zeros] === 0) zeros++;
-  const digits = [0];
-  for (let i = zeros; i < bytes.length; i++) {
-    let carry = bytes[i];
-    for (let j = 0; j < digits.length; j++) {
-      carry += digits[j] << 8;
-      digits[j] = carry % 58;
-      carry = (carry / 58) | 0;
-    }
-    while (carry > 0) { digits.push(carry % 58); carry = (carry / 58) | 0; }
-  }
-  let out = "";
-  for (let i = 0; i < zeros; i++) out += "1";
-  for (let i = digits.length - 1; i >= 0; i--) out += ALPHABET[digits[i]];
-  return out;
-}
+// Old custom base58 encoder removed — we use the official bs58 package now
+// since wallet adapters return Uint8Array signatures we just encode directly.
 
 // =================== SPLASH / ENTER ===================
 // Two paths: connect a Solana wallet (full game), or enter as guest

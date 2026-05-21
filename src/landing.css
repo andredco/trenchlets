@@ -1123,3 +1123,20 @@ code {
   }
   .lp-section { padding: 70px 20px; }
 }
+
+
+/* =========================================================
+   BRAND LOGO IMAGE (replaces the "T" / "TL" text glyph)
+   ========================================================= */
+.lp-brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.lp-brand-mark {
+  background: transparent;
+  box-shadow: none;
+  padding: 2px;
+  overflow: hidden;
+}

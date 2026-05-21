@@ -3408,3 +3408,19 @@ body.landing-mode .topbar.slim {
   font-size: 0.88rem;
   text-align: center;
 }
+
+
+/* =========================================================
+   PLAY-PAGE BRAND LOGO (replaces TL glyph)
+   ========================================================= */
+.brand-mark .brand-mark-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.brand-mark:has(.brand-mark-img) {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
