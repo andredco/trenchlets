@@ -28,7 +28,7 @@ const DIFFICULTY_COOLDOWN_MS = {
 const MIN_DURATION_MS = 10_000; // shorter sessions are rejected
 const MAX_DURATION_MS = 30 * 60 * 1000;
 
-const EPOCH_LENGTH_MS = 6 * 60 * 60 * 1000;
+const EPOCH_LENGTH_MS = 3 * 60 * 60 * 1000;
 const EPOCH_ANCHOR_MS = Date.UTC(2026, 4, 21, 0, 0, 0); // matches data.js
 
 export function currentEpochIdx(now = Date.now()) {

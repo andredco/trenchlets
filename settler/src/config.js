@@ -1,15 +1,15 @@
 // Settler economic constants. Tunable via env if you want to A/B
 // later, but the defaults reflect the locked-in economics:
-//   - 40% per-epoch release cap on vault SOL
-//   - 30% protocol take of whatever drains
+//   - 50% per-epoch release cap on vault SOL
+//   - 30% protocol take of whatever distributes
 //   - 70% goes to community buybacks
-//   - 6h epoch
+//   - 3h epoch
 //   - 5% max slippage per Jupiter swap
 
-export const RELEASE_CAP_PCT  = numEnv("RELEASE_CAP_PCT",  0.40); // ≤ 40% drains per epoch
+export const RELEASE_CAP_PCT  = numEnv("RELEASE_CAP_PCT",  0.50); // ≤ 50% distributes per epoch
 export const PROTOCOL_TAKE_PCT = numEnv("PROTOCOL_TAKE_PCT", 0.30); // 30% stays in vault
 export const SLIPPAGE_BPS     = numEnv("SLIPPAGE_BPS", 500); // 5%
-export const EPOCH_LENGTH_MS  = 6 * 60 * 60 * 1000;
+export const EPOCH_LENGTH_MS  = 3 * 60 * 60 * 1000;
 export const EPOCH_ANCHOR_MS  = Date.UTC(2026, 4, 21, 0, 0, 0); // matches client + web
 
 export const DRY_RUN = process.env.DRY_RUN === "true" || process.env.DRY_RUN === "1";

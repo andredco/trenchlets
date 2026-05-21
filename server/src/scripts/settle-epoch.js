@@ -39,9 +39,9 @@ const TIER_MULT = {
   whale: 1.5,
 };
 
-const EPOCH_LENGTH_MS = 6 * 60 * 60 * 1000;
+const EPOCH_LENGTH_MS = 3 * 60 * 60 * 1000;
 const EPOCH_ANCHOR_MS = Date.UTC(2026, 4, 21, 0, 0, 0);
-const DRAIN_PCT = 0.15;
+const DRAIN_PCT = 0.50;
 const QUALIFY_FLOOR = 50_000;
 
 function currentEpochIdx(now = Date.now()) {

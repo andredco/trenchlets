@@ -65,8 +65,8 @@ if (tickerTrack) {
   // Tags interspersed between tickers
   const tags = [
     `<span class="lp-ticker-tag">LIVE</span>`,
-    `<span class="lp-ticker-tag">6H EPOCH</span>`,
-    `<span class="lp-ticker-tag">15% DISTRIBUTION</span>`,
+    `<span class="lp-ticker-tag">3H EPOCH</span>`,
+    `<span class="lp-ticker-tag">50% DISTRIBUTION</span>`,
     `<span class="lp-ticker-tag">SKILL-BASED</span>`,
     `<span class="lp-ticker-tag">10 HOUSES</span>`,
     `<span class="lp-ticker-tag">SOLANA</span>`,

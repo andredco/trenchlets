@@ -475,10 +475,10 @@ export const VAULT_CONFIG = {
 };
 
 export const EPOCH_CONFIG = {
-  // 6h airdrop epoch.
-  lengthMs: 6 * 60 * 60 * 1000,
-  // % of vault USD that drains to airdrop pool each epoch.
-  drainPct: 0.15,
+  // 3h distribution epoch.
+  lengthMs: 3 * 60 * 60 * 1000,
+  // % of vault USD that distributes to qualifying holders each epoch.
+  drainPct: 0.50,
   // Minimum $TRENCHLETS held to qualify for airdrop weight.
   qualifyFloor: 50_000,
   // Anchor epoch start so all clients agree on epoch boundaries

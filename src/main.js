@@ -43,7 +43,7 @@ import {
 import { SFX, setMuted } from "./audio.js";
 import { bakeCharacterHD, makeCharacterPalette, HAIR_COLORS, SKIN_TONES } from "./sprites.js";
 import { launchMinigame, isMinigameActive, getMinigameCooldown } from "./minigames/index.js";
-import { getMultiplayer, getPlayerId, MSG, saveSession as mpSaveSession, getDisplayName as mpGetDisplayName, setDisplayName as mpSetDisplayName, getMe } from "./multiplayer.js";
+import { getMultiplayer, getPlayerId, MSG, saveSession as mpSaveSession, clearSession as mpClearSession, getDisplayName as mpGetDisplayName, setDisplayName as mpSetDisplayName, getMe } from "./multiplayer.js";
 import { pickWallet } from "./wallet-picker.js";
 import bs58 from "bs58";
 
@@ -580,14 +580,7 @@ function joinCommunity(communityId) {
     });
     return;
   }
-  if (!community.holding) {
-    pushNotification({
-      type: "event",
-      title: "GATE LOCKED",
-      text: `Hold ${community.ticker} to enter ${community.name}.`,
-    });
-    return;
-  }
+  // No token-holding gate — players choose any community freely.
   setPlayerCommunity(communityId);
   pushNotification({
     type: "community",
@@ -1015,7 +1008,7 @@ function renderCommunities() {
     const card = document.createElement("button");
     card.className = "community-card";
     if (state.player.community?.id === community.id) card.classList.add("active");
-    if (!community.holding && state.player.wallet) card.classList.add("locked");
+    // No locking — every community is claimable.
     const total = TASKS.reduce(
       (sum, t) => sum + (state.taskState[community.id]?.[t.id]?.progress || 0),
       0,
@@ -1023,9 +1016,7 @@ function renderCommunities() {
     const vaultValue = state.communityVault[community.id] || 0;
     const status = state.player.community?.id === community.id
       ? '<span class="pill green">JOINED</span>'
-      : community.holding
-        ? '<span class="pill">CLAIMABLE</span>'
-        : '<span class="pill muted">LOCKED</span>';
+      : '<span class="pill">CLAIMABLE</span>';
     card.innerHTML = `
       <div class="community-card-head">
         <div class="community-icon" style="background:linear-gradient(135deg, ${community.color}, ${community.accent})">${community.ticker.slice(0, 3)}</div>
@@ -1121,6 +1112,11 @@ walletButton.addEventListener("click", async () => {
 // Desktop + no extension: open phantom.app/download in a new tab.
 // Mobile: deep-link into the Phantom app's in-app browser.
 async function connectWallet() {
+  // Always clear any stale session before connecting. Avoids the
+  // case where an expired or partial token makes the server think
+  // we're authed but the wallet hasn't actually signed this session.
+  mpClearSession();
+
   const picked = await pickWallet();
   if (!picked) {
     console.log("[connectWallet] cancelled");
@@ -1597,7 +1593,7 @@ meetingModal.querySelectorAll("[data-close]").forEach((node) => {
   });
 });
 
-proposalForm.addEventListener("submit", (event) => {
+proposalForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const name = propName.value.trim();
   const ticker = propTicker.value.trim().toUpperCase();
@@ -1628,6 +1624,23 @@ proposalForm.addEventListener("submit", (event) => {
   propCA.value = "";
   renderProposals();
   pushNotification({ type: "community", title: "PROPOSAL FILED", text: `${ticker} is now up for vote.` });
+
+  // Also submit to the server so it lands in Postgres + the admin dashboard.
+  try {
+    await fetch("/api/proposals", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name,
+        ticker,
+        contract: ca,
+        hardwareId: getHwid(),
+        wallet: state.player.wallet || null,
+      }),
+    });
+  } catch (err) {
+    console.warn("server proposal submit failed:", err);
+  }
 });
 
 function renderProposals() {

@@ -57,7 +57,7 @@
 
         <h4>ECONOMY</h4>
         <a href="#vault">The vault</a>
-        <a href="#epoch">6-hour epochs</a>
+        <a href="#epoch">3-hour epochs</a>
         <a href="#tiers">Tier ladder</a>
         <a href="#airdrop">Airdrop math</a>
 
@@ -88,11 +88,11 @@
           <p>
             Trenchlets is a live pixel-art world where 10 pump.fun communities ("houses") compete for vault yield.
             The whole point: <strong>real coordination &gt; spam</strong>. Skill-based minigames replace farming bots.
-            Every contribution stacks toward your house's share of a vault that distributes every 6 hours.
+            Every contribution stacks toward your house's share of a vault that distributes every 3 hours.
           </p>
           <div class="docs-callout">
             <strong>TL;DR</strong> — Pick a house. Walk to its billboard. Press E. Play 10 stages of a minigame.
-            Your score becomes a contribution to your house's yield. Vault distributes every 6h, 15% goes to qualifying $TRENCHLETS holders pro-rata.
+            Your score becomes a contribution to your house's yield. Vault distributes every 3h, 50% goes to qualifying $TRENCHLETS holders pro-rata.
           </div>
         </section>
 
@@ -176,7 +176,7 @@
           <h2>House yield</h2>
           <p>
             Yield is your house's accumulated contribution score within the current epoch.
-            When the epoch ends (every 6 hours), houses with higher yield get a bigger share of the vault distribution.
+            When the epoch ends (every 3 hours), houses with higher yield get a bigger share of the vault distribution.
           </p>
           <p>
             <strong>It's a team effort.</strong> Every member's contribution stacks. A house of 100 active players doing easy daily plays beats 5 hard-mode whales every time.
@@ -201,14 +201,14 @@
 
         <!-- EPOCH -->
         <section id="epoch">
-          <h2>6-hour epochs</h2>
+          <h2>3-hour epochs</h2>
           <p>
-            Every 6 hours, the vault distributes <strong>15%</strong> of its current USD value to qualifying holders.
+            Every 3 hours, the vault distributes <strong>50%</strong> of its current USD value to qualifying holders.
             Epoch boundaries are anchored to a fixed launch timestamp — all clients see the same countdown.
           </p>
           <ul class="docs-bullets">
-            <li>Epoch length: <strong>6 hours</strong></li>
-            <li>Distribution: <strong>15% of vault USD</strong></li>
+            <li>Epoch length: <strong>3 hours</strong></li>
+            <li>Distribution: <strong>50% of vault USD</strong></li>
             <li>Qualifying floor: <strong>50,000 $TRENCHLETS held</strong></li>
             <li>Per-wallet split: <strong>pro-rata × tier multiplier</strong></li>
           </ul>
@@ -233,11 +233,11 @@
         <section id="airdrop">
           <h2>Airdrop math</h2>
           <p>At each epoch close:</p>
-          <pre class="docs-code">distribution = vault_usd × 0.15
+          <pre class="docs-code">distribution = vault_usd × 0.50
 qualifying_holders = wallets with ≥ 50K $TRENCHLETS
 weight = balance × tier_multiplier
 share = (your_weight / total_weight) × distribution</pre>
-          <p>House yield doesn't change the airdrop directly — it changes which houses contribute most to the next epoch's vault. The vault grows, and your $TRENCHLETS holding gets you a slice every 6 hours.</p>
+          <p>House yield doesn't change the airdrop directly — it changes which houses contribute most to the next epoch's vault. The vault grows, and your $TRENCHLETS holding gets you a slice every 3 hours.</p>
         </section>
 
         <!-- EVENTS -->

@@ -1,5 +1,5 @@
 // =========================================================
-// Trenchlets · Minigame Launcher (v2 — Task Picker + Stages)
+// Trenchlets · Minigame Launcher (v3 — per-game cooldown + polish)
 // =========================================================
 
 import { mountRhythmRush } from "./rhythm-rush.js";
@@ -23,26 +23,56 @@ const DIFFICULTY_META = {
 };
 
 const TOTAL_STAGES = 10;
-const COOLDOWN_KEY = "trenchlets-minigame-cooldown";
+// Per-(game, difficulty) cooldown. Map keyed JSON in localStorage so each
+// minigame's cooldown is independent — finishing Rhythm Rush doesn't lock
+// Memory Mint, etc.
+const COOLDOWN_KEY = "trenchlets-minigame-cooldowns-v2";
 
 let activeGame = null;
 let overlayEl = null;
 
-// ── Cooldown ────────────────────────────────────────────────
-function getCooldownUntil() {
+// ── Cooldown helpers ────────────────────────────────────────
+function loadCooldowns() {
   try {
     const raw = localStorage.getItem(COOLDOWN_KEY);
-    if (!raw) return 0;
-    const { until } = JSON.parse(raw);
-    return typeof until === "number" ? until : 0;
-  } catch { return 0; }
+    if (!raw) return {};
+    return JSON.parse(raw) || {};
+  } catch { return {}; }
 }
-function setCooldown(ms) {
-  localStorage.setItem(COOLDOWN_KEY, JSON.stringify({ until: Date.now() + ms }));
+function saveCooldowns(cds) {
+  localStorage.setItem(COOLDOWN_KEY, JSON.stringify(cds));
 }
+function cdKey(gameId, difficulty) {
+  return `${gameId}::${difficulty}`;
+}
+function getCooldownFor(gameId, difficulty) {
+  const cds = loadCooldowns();
+  const until = cds[cdKey(gameId, difficulty)] || 0;
+  return Math.max(0, until - Date.now());
+}
+function setCooldownFor(gameId, difficulty, ms) {
+  const cds = loadCooldowns();
+  cds[cdKey(gameId, difficulty)] = Date.now() + ms;
+  // Garbage collect old expired entries while we're at it.
+  for (const k of Object.keys(cds)) {
+    if (cds[k] < Date.now() - 60_000) delete cds[k];
+  }
+  saveCooldowns(cds);
+}
+
+// Returns the EARLIEST time the player can play any combination again.
+// Used by the dashboard task button to show a single "next available"
+// hint when nothing is playable.
 export function getMinigameCooldown() {
-  return Math.max(0, getCooldownUntil() - Date.now());
+  const cds = loadCooldowns();
+  const now = Date.now();
+  let earliest = Infinity;
+  for (const k in cds) {
+    if (cds[k] > now && cds[k] < earliest) earliest = cds[k];
+  }
+  return earliest === Infinity ? 0 : Math.max(0, earliest - now);
 }
+
 export function isMinigameActive() {
   return activeGame !== null || overlayEl !== null;
 }
@@ -52,19 +82,29 @@ function formatTime(ms) {
   const s = Math.ceil(ms / 1000);
   return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 }
-function mkEl(tag, style = {}, html = "") {
+function el(tag, attrs = {}) {
   const e = document.createElement(tag);
-  Object.assign(e.style, style);
-  if (html) e.innerHTML = html;
+  for (const k in attrs) {
+    if (k === "style") Object.assign(e.style, attrs[k]);
+    else if (k === "className") e.className = attrs[k];
+    else if (k === "html") e.innerHTML = attrs[k];
+    else if (k === "text") e.textContent = attrs[k];
+    else e.setAttribute(k, attrs[k]);
+  }
   return e;
 }
+function esc(s) {
+  const d = document.createElement("div");
+  d.textContent = String(s ?? "");
+  return d.innerHTML;
+}
 
-// ── Main Export ─────────────────────────────────────────────
+// ── Public entry ───────────────────────────────────────────
 export function launchMinigame(communityDef, opts = {}) {
   if (activeGame || overlayEl) return;
   const { onComplete } = opts;
   const houseName = communityDef?.name || "Your House";
-  const houseColor = communityDef?.color || "#5cff9a";
+  const houseColor = communityDef?.color || "#1eff8e";
 
   showPicker(houseName, houseColor, (game, diff) => {
     runStages(game, diff, houseColor, (totalPct, stages) => {
@@ -73,75 +113,118 @@ export function launchMinigame(communityDef, opts = {}) {
   });
 }
 
-// ── Task Picker ─────────────────────────────────────────────
+// ── Picker ──────────────────────────────────────────────────
 function showPicker(houseName, houseColor, onStart) {
-  const cooldownMs = getMinigameCooldown();
-  const onCooldown = cooldownMs > 0;
-
-  const overlay = mkEl("div", { position: "fixed", inset: "0", zIndex: "9999", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(4,4,12,0.92)", fontFamily: "inherit" });
-  const modal = mkEl("div", { background: "#0c0c1a", border: "1px solid #222", borderRadius: "12px", width: "min(94vw,520px)", maxHeight: "90vh", overflowY: "auto", padding: "24px", color: "#eee", position: "relative" });
-
+  const overlay = el("div", { className: "mg-overlay" });
+  const modal = el("div", { className: "mg-modal" });
   modal.innerHTML = `
-    <h2 style="margin:0 0 4px;font-size:1.3rem;color:${houseColor};letter-spacing:1px">${houseName}</h2>
-    <p style="margin:0 0 16px;font-size:0.78rem;color:#999;line-height:1.5">
-      Complete minigames to boost your house's vault yield. Higher difficulty = bigger contribution.<br>
-      Each game has <strong>10 stages</strong> that get progressively harder. After completing a game you'll be on cooldown for 1–2 hours.<br>
-      <em>This is a team effort — every member's contribution stacks.</em>
-    </p>
-    <h4 style="margin:0 0 8px;font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:1px">Select a game</h4>
+    <header class="mg-head">
+      <div>
+        <h2 class="mg-title" style="color:${esc(houseColor)}">${esc(houseName)}</h2>
+        <p class="mg-sub">Pick a game and difficulty. Each combination has its own cooldown.</p>
+      </div>
+      <button class="mg-close" type="button" aria-label="Close">×</button>
+    </header>
+    <div class="mg-body">
+      <h4 class="mg-section-label">Select a game</h4>
+      <div class="mg-game-list" id="mgGameList"></div>
+      <h4 class="mg-section-label">Difficulty</h4>
+      <div class="mg-diff-row" id="mgDiffRow"></div>
+      <p class="mg-foot">Cooldown shown per game/difficulty. Finish other games to keep contributing while one's on cooldown.</p>
+    </div>
   `;
 
-  // Game list
-  let selectedId = null;
-  const list = mkEl("div", { marginBottom: "14px" });
-  REGISTRY.forEach(g => {
-    const item = mkEl("div", { padding: "10px 12px", marginBottom: "6px", borderRadius: "6px", border: "1px solid #333", cursor: "pointer", transition: "border-color .15s" });
-    item.innerHTML = `<strong style="font-size:0.85rem">${g.name}</strong><br><span style="color:#888;font-size:0.72rem">${g.desc}</span>`;
-    item.addEventListener("click", () => {
-      selectedId = g.id;
-      list.querySelectorAll("div").forEach(d => { d.style.borderColor = "#333"; d.style.background = "transparent"; });
-      item.style.borderColor = houseColor;
-      item.style.background = "rgba(255,255,255,0.03)";
-    });
-    list.appendChild(item);
-  });
-  modal.appendChild(list);
+  let selectedGameId = null;
 
-  // Difficulty row
-  const diffLabel = mkEl("h4", { margin: "0 0 8px", fontSize: "0.8rem", color: "#888", textTransform: "uppercase", letterSpacing: "1px" }, "Choose difficulty");
-  modal.appendChild(diffLabel);
-  const diffRow = mkEl("div", { display: "flex", gap: "8px" });
-  ["easy", "medium", "hard"].forEach(diff => {
-    const m = DIFFICULTY_META[diff];
-    const btn = mkEl("button", { flex: "1", padding: "12px 6px", border: "none", borderRadius: "6px", cursor: onCooldown ? "not-allowed" : "pointer", fontFamily: "inherit", fontSize: "0.8rem", fontWeight: "700", color: "#0c0c1a", background: m.color, opacity: onCooldown ? "0.3" : "1", transition: "opacity .15s" });
-    btn.innerHTML = `${m.label}<br><span style="font-size:0.62rem;font-weight:400;opacity:0.8">${m.desc}</span>`;
-    btn.disabled = onCooldown;
-    btn.addEventListener("click", () => {
-      if (onCooldown || !selectedId) return;
-      const game = REGISTRY.find(g => g.id === selectedId);
-      if (!game) return;
-      overlay.remove();
-      overlayEl = null;
-      onStart(game, diff);
+  // Game cards
+  const gameList = modal.querySelector("#mgGameList");
+  for (const g of REGISTRY) {
+    const card = el("button", { className: "mg-game-card", type: "button" });
+    card.dataset.id = g.id;
+    card.innerHTML = `
+      <div class="mg-game-card-text">
+        <strong>${esc(g.name)}</strong>
+        <span>${esc(g.desc)}</span>
+      </div>
+      <span class="mg-game-card-cd"></span>
+    `;
+    card.addEventListener("click", () => {
+      selectedGameId = g.id;
+      gameList.querySelectorAll(".mg-game-card").forEach((c) => c.classList.remove("selected"));
+      card.classList.add("selected");
+      renderDiffRow();
     });
-    diffRow.appendChild(btn);
-  });
-  modal.appendChild(diffRow);
-
-  // Cooldown banner
-  if (onCooldown) {
-    const banner = mkEl("div", { textAlign: "center", padding: "12px", background: "#1a1020", borderRadius: "8px", marginTop: "14px", color: "#ff6b8a", fontSize: "0.85rem" });
-    banner.textContent = `⏳ On cooldown — ${formatTime(cooldownMs)} remaining`;
-    modal.appendChild(banner);
-    const iv = setInterval(() => {
-      const rem = getMinigameCooldown();
-      if (rem <= 0) { clearInterval(iv); overlay.remove(); overlayEl = null; showPicker(houseName, houseColor, onStart); return; }
-      banner.textContent = `⏳ On cooldown — ${formatTime(rem)} remaining`;
-    }, 1000);
+    gameList.appendChild(card);
   }
 
-  // Close on backdrop click
-  overlay.addEventListener("click", e => { if (e.target === overlay) { overlay.remove(); overlayEl = null; } });
+  // Diff buttons
+  const diffRow = modal.querySelector("#mgDiffRow");
+  function renderDiffRow() {
+    diffRow.innerHTML = "";
+    for (const diff of ["easy", "medium", "hard"]) {
+      const m = DIFFICULTY_META[diff];
+      const btn = el("button", { className: `mg-diff-btn diff-${diff}`, type: "button" });
+      btn.style.setProperty("--diff-color", m.color);
+
+      let cdMs = 0;
+      let disabled = false;
+      if (selectedGameId) {
+        cdMs = getCooldownFor(selectedGameId, diff);
+        disabled = cdMs > 0;
+      } else {
+        disabled = true;
+      }
+
+      btn.disabled = disabled;
+      btn.innerHTML = `
+        <span class="mg-diff-label">${m.label}</span>
+        <span class="mg-diff-desc">${esc(m.desc)}</span>
+        ${cdMs > 0 ? `<span class="mg-diff-cd">⏳ ${formatTime(cdMs)}</span>` : ""}
+      `;
+      btn.addEventListener("click", () => {
+        if (btn.disabled) return;
+        const game = REGISTRY.find((r) => r.id === selectedGameId);
+        if (!game) return;
+        cleanup();
+        onStart(game, diff);
+      });
+      diffRow.appendChild(btn);
+    }
+  }
+  renderDiffRow();
+
+  // Live tick: refresh cooldown timers in the diff row + per-card hints.
+  function tick() {
+    if (selectedGameId) renderDiffRow();
+    // Per-game-card cooldown hint (shows the smallest active cooldown for that game)
+    for (const card of gameList.querySelectorAll(".mg-game-card")) {
+      const id = card.dataset.id;
+      const cdEl = card.querySelector(".mg-game-card-cd");
+      const allCds = ["easy", "medium", "hard"]
+        .map((d) => ({ d, cd: getCooldownFor(id, d) }))
+        .filter((x) => x.cd > 0);
+      if (allCds.length === 0) {
+        cdEl.textContent = "";
+        cdEl.classList.remove("active");
+      } else {
+        // Show the cooldown closest to expiring.
+        allCds.sort((a, b) => a.cd - b.cd);
+        cdEl.textContent = `${allCds.length} cd · next ${formatTime(allCds[0].cd)}`;
+        cdEl.classList.add("active");
+      }
+    }
+  }
+  tick();
+  const tickInterval = setInterval(tick, 500);
+
+  function cleanup() {
+    clearInterval(tickInterval);
+    overlay.remove();
+    overlayEl = null;
+  }
+  modal.querySelector(".mg-close").addEventListener("click", cleanup);
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) cleanup(); });
+
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
   overlayEl = overlay;
@@ -157,38 +240,37 @@ function runStages(gameDef, difficulty, houseColor, onAllDone) {
 
   function startStage(num) {
     if (quit) return;
-    const overlay = mkEl("div", { position: "fixed", inset: "0", zIndex: "9999", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(4,4,12,0.92)", fontFamily: "inherit" });
-    const modal = mkEl("div", { background: "#0c0c1a", border: "1px solid #222", borderRadius: "12px", width: "min(94vw,440px)", maxHeight: "90vh", overflowY: "auto", padding: "16px 20px", color: "#eee", position: "relative" });
+    const overlay = el("div", { className: "mg-overlay" });
+    const modal = el("div", { className: "mg-modal mg-stage-modal" });
+    modal.innerHTML = `
+      <header class="mg-stage-head">
+        <span class="mg-stage-counter" style="color:${esc(houseColor)}">STAGE ${num}/${TOTAL_STAGES}</span>
+        <span class="mg-stage-score">${totalPts} pts</span>
+        <button class="mg-quit" type="button">QUIT</button>
+      </header>
+      <div class="mg-stage-body" id="mgStageArea"></div>
+      <footer class="mg-stage-foot">
+        <span class="mg-stage-title">${esc(gameDef.name)}</span>
+        <span class="mg-stage-diff diff-${difficulty}">${diffMeta.label}</span>
+      </footer>
+    `;
+    const area = modal.querySelector("#mgStageArea");
+    const scoreEl = modal.querySelector(".mg-stage-score");
 
-    // Top bar
-    const top = mkEl("div", { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" });
-    const stageEl = mkEl("span", { fontSize: "0.9rem", fontWeight: "700", color: houseColor }, `STAGE ${num}/${TOTAL_STAGES}`);
-    const scoreEl = mkEl("span", { fontSize: "0.85rem", color: "#aaa" }, `SCORE: ${totalPts}`);
-    top.appendChild(stageEl);
-    top.appendChild(scoreEl);
-    modal.appendChild(top);
-
-    // Quit
-    const quitBtn = mkEl("button", { position: "absolute", top: "12px", right: "14px", background: "none", border: "1px solid #444", borderRadius: "6px", color: "#ccc", padding: "4px 12px", cursor: "pointer", fontFamily: "inherit", fontSize: "0.72rem" }, "QUIT");
-    quitBtn.addEventListener("click", () => {
+    modal.querySelector(".mg-quit").addEventListener("click", () => {
       quit = true;
       if (activeGame?.destroy) activeGame.destroy();
       activeGame = null;
       overlay.remove();
       overlayEl = null;
-      showResults(stageScores, difficulty, houseColor, onAllDone);
+      showResults(stageScores, gameDef.id, difficulty, houseColor, onAllDone);
     });
-    modal.appendChild(quitBtn);
-
-    // Game area
-    const area = mkEl("div", { minHeight: "260px", position: "relative" });
-    modal.appendChild(area);
 
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
     overlayEl = overlay;
 
-    // Time decreases per stage (harder)
+    // Slightly more time at lower stages, tighter as you climb.
     const baseMs = 28000;
     const stageMs = Math.max(12000, baseMs - (num - 1) * 1400);
 
@@ -197,7 +279,7 @@ function runStages(gameDef, difficulty, houseColor, onAllDone) {
       difficulty,
       color: houseColor,
       maxMs: stageMs,
-      onScore: (s) => { scoreEl.innerHTML = `SCORE: ${totalPts + Math.round(s * 100)}`; },
+      onScore: (s) => { scoreEl.textContent = `${totalPts + Math.round(s * 100)} pts`; },
       onFinish: (s) => {
         const pts = Math.round(Math.max(0, Math.min(1, s)) * 100);
         stageScores.push(pts);
@@ -208,7 +290,7 @@ function runStages(gameDef, difficulty, houseColor, onAllDone) {
         overlayEl = null;
         currentStage++;
         if (currentStage > TOTAL_STAGES || quit) {
-          showResults(stageScores, difficulty, houseColor, onAllDone);
+          showResults(stageScores, gameDef.id, difficulty, houseColor, onAllDone);
         } else {
           setTimeout(() => startStage(currentStage), 500);
         }
@@ -220,37 +302,46 @@ function runStages(gameDef, difficulty, houseColor, onAllDone) {
 }
 
 // ── Results ─────────────────────────────────────────────────
-function showResults(stageScores, difficulty, houseColor, onAllDone) {
+function showResults(stageScores, gameId, difficulty, houseColor, onAllDone) {
   const diffMeta = DIFFICULTY_META[difficulty];
   const maxPossible = TOTAL_STAGES * 100;
   const rawTotal = stageScores.reduce((a, b) => a + b, 0);
   const totalContrib = ((rawTotal / maxPossible) * diffMeta.pct * stageScores.length).toFixed(2);
 
-  setCooldown(diffMeta.cooldownMs);
+  // Cooldown applies ONLY to this (game, difficulty) pair.
+  setCooldownFor(gameId, difficulty, diffMeta.cooldownMs);
 
-  const overlay = mkEl("div", { position: "fixed", inset: "0", zIndex: "9999", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(4,4,12,0.92)", fontFamily: "inherit" });
-  const modal = mkEl("div", { background: "#0c0c1a", border: "1px solid #222", borderRadius: "12px", width: "min(94vw,420px)", maxHeight: "90vh", overflowY: "auto", padding: "24px", color: "#eee" });
+  const overlay = el("div", { className: "mg-overlay" });
+  const modal = el("div", { className: "mg-modal mg-results-modal" });
 
-  modal.innerHTML = `<h2 style="text-align:center;font-size:1.2rem;color:${houseColor};margin:0 0 14px;letter-spacing:1px">RESULTS</h2>`;
+  let breakdownHtml = "";
+  for (let i = 0; i < stageScores.length; i++) {
+    breakdownHtml += `
+      <div class="mg-result-row">
+        <span>Stage ${i + 1}</span>
+        <span style="color:${esc(houseColor)}">${stageScores[i]} pts</span>
+      </div>`;
+  }
 
-  // Breakdown
-  const breakdown = mkEl("div", { marginBottom: "12px" });
-  stageScores.forEach((pts, i) => {
-    const row = mkEl("div", { display: "flex", justifyContent: "space-between", padding: "4px 0", fontSize: "0.78rem", borderBottom: "1px solid #1a1a2e" });
-    row.innerHTML = `<span>Stage ${i + 1}</span><span style="color:${houseColor}">${pts} pts</span>`;
-    breakdown.appendChild(row);
-  });
-  modal.appendChild(breakdown);
-
-  modal.innerHTML += `
-    <div style="text-align:center;font-size:1rem;font-weight:700;color:${houseColor};margin:14px 0">${rawTotal} / ${maxPossible} total</div>
-    <div style="text-align:center;font-size:0.88rem;color:#ccc;margin:6px 0">Your house vault yield increased by <strong style="color:${houseColor}">${totalContrib}%</strong></div>
-    <div style="text-align:center;font-size:0.75rem;color:#888;margin:10px 0">Cooldown: ${formatTime(diffMeta.cooldownMs)} — come back and play again!</div>
+  modal.innerHTML = `
+    <header class="mg-head">
+      <div>
+        <h2 class="mg-title" style="color:${esc(houseColor)}">RESULTS</h2>
+        <p class="mg-sub">${esc(diffMeta.label)} · ${stageScores.length} stages</p>
+      </div>
+    </header>
+    <div class="mg-body">
+      <div class="mg-result-breakdown">${breakdownHtml}</div>
+      <div class="mg-result-total" style="color:${esc(houseColor)}">${rawTotal} / ${maxPossible} total</div>
+      <div class="mg-result-yield">House vault yield <strong style="color:${esc(houseColor)}">+${totalContrib}%</strong></div>
+      <div class="mg-result-cd">This game on cooldown: ${formatTime(diffMeta.cooldownMs)}<br><small>Other games + difficulties are still available.</small></div>
+      <button class="mg-done-btn" style="background:${esc(houseColor)}">DONE</button>
+    </div>
   `;
-
-  const closeBtn = mkEl("button", { display: "block", margin: "18px auto 0", padding: "10px 32px", border: "none", borderRadius: "6px", background: houseColor, color: "#0c0c1a", cursor: "pointer", fontFamily: "inherit", fontSize: "0.85rem", fontWeight: "700" }, "DONE");
-  closeBtn.addEventListener("click", () => { overlay.remove(); overlayEl = null; });
-  modal.appendChild(closeBtn);
+  modal.querySelector(".mg-done-btn").addEventListener("click", () => {
+    overlay.remove();
+    overlayEl = null;
+  });
 
   overlay.appendChild(modal);
   document.body.appendChild(overlay);

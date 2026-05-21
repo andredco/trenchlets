@@ -90,6 +90,56 @@ app.get("/api/prices", (req, res) => {
   res.json(getSnapshot());
 });
 
+// ---- TOWN MEETING PROPOSALS ----
+// Players submit through the in-game meeting tab. Stored in Postgres
+// so the admin dashboard can review every proposal across all clients.
+app.post("/api/proposals", async (req, res) => {
+  try {
+    const { name, ticker, contract, hardwareId, wallet } = req.body || {};
+    if (!name || !ticker || !contract) {
+      return res.status(400).json({ error: "name, ticker, contract required" });
+    }
+    if (!/^[A-Za-z0-9]{8,64}$/.test(contract)) {
+      return res.status(400).json({ error: "invalid contract address" });
+    }
+    // Resolve or create the submitter player so we can foreign-key to them.
+    const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").toString().split(",")[0].trim();
+    const { resolvePlayer } = await import("./players.js");
+    const submitter = await resolvePlayer({ wallet, hardwareId, ip });
+    // Insert proposal (or accept existing). Auto-vote +1 from the submitter.
+    const { query, getOne } = await import("./db/pool.js");
+    const existing = await getOne("SELECT id, vote_count FROM town_proposals WHERE contract = $1", [contract]);
+    let proposalId;
+    if (existing) {
+      proposalId = existing.id;
+    } else {
+      const inserted = await getOne(
+        `INSERT INTO town_proposals (name, ticker, contract, submitter, vote_count)
+         VALUES ($1, $2, $3, $4, 1) RETURNING id`,
+        [name.slice(0, 64), ticker.slice(0, 16), contract, submitter.id],
+      );
+      proposalId = inserted.id;
+    }
+    // Record the vote (one per player). Idempotent.
+    await query(
+      `INSERT INTO town_votes (proposal_id, player_id) VALUES ($1, $2)
+       ON CONFLICT DO NOTHING`,
+      [proposalId, submitter.id],
+    );
+    // Recompute vote count from the votes table (source of truth).
+    await query(
+      `UPDATE town_proposals
+       SET vote_count = (SELECT COUNT(*) FROM town_votes WHERE proposal_id = $1)
+       WHERE id = $1`,
+      [proposalId],
+    );
+    res.json({ ok: true, proposalId });
+  } catch (err) {
+    console.warn("proposal submit failed:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ---- ADMIN ----
 app.use("/admin", adminRouter());
 
