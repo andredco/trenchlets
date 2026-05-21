@@ -18,6 +18,7 @@
 
 import { Router } from "express";
 import { query } from "../db/pool.js";
+import { setEpochAnchor, getEpochAnchor, currentEpochIdx } from "../epoch.js";
 
 export function adminRouter() {
   const r = Router();
@@ -123,6 +124,71 @@ export function adminRouter() {
     }
   });
 
+  // -----------------------------------------------------------
+  // RESET WORLD
+  // -----------------------------------------------------------
+  // Pushes the epoch anchor to "now" so currentEpochIdx() = 0, and
+  // optionally wipes contributions, cooldowns, house yield, epochs.
+  // Use this to start a fresh launch run from the dashboard.
+  //
+  // Body flags (all optional, default true):
+  //   { contributions, cooldowns, houseYield, epochs, anchor }
+  r.post("/api/reset-world", async (req, res) => {
+    const flags = {
+      contributions: req.body?.contributions !== false,
+      cooldowns: req.body?.cooldowns !== false,
+      houseYield: req.body?.houseYield !== false,
+      epochs: req.body?.epochs !== false,
+      anchor: req.body?.anchor !== false,
+    };
+    const summary = {};
+    try {
+      await query("BEGIN");
+      if (flags.contributions) {
+        const r1 = await query(`DELETE FROM contributions`);
+        summary.contributions = r1.rowCount;
+      }
+      if (flags.cooldowns) {
+        const r2 = await query(`DELETE FROM cooldowns`);
+        summary.cooldowns = r2.rowCount;
+      }
+      if (flags.houseYield) {
+        const r3 = await query(
+          `UPDATE house_state SET epoch_yield = 0, total_yield = 0, updated_at = now()`,
+        );
+        summary.houseRowsCleared = r3.rowCount;
+      }
+      if (flags.epochs) {
+        const r4 = await query(`DELETE FROM epochs`);
+        summary.epochs = r4.rowCount;
+      }
+      await query("COMMIT");
+    } catch (err) {
+      await query("ROLLBACK");
+      return res.status(500).json({ error: err.message });
+    }
+    if (flags.anchor) {
+      try {
+        const newAnchor = Date.now();
+        await setEpochAnchor(newAnchor);
+        summary.anchorMs = newAnchor;
+        summary.anchorIso = new Date(newAnchor).toISOString();
+      } catch (err) {
+        return res.status(500).json({ error: "anchor write failed: " + err.message });
+      }
+    }
+    summary.epoch = currentEpochIdx();
+    res.json({ ok: true, summary });
+  });
+
+  r.get("/api/anchor", (req, res) => {
+    res.json({
+      anchorMs: getEpochAnchor(),
+      anchorIso: new Date(getEpochAnchor()).toISOString(),
+      epoch: currentEpochIdx(),
+    });
+  });
+
   // HTML dashboard
   r.get("/", (req, res) => {
     res.set("content-type", "text/html").send(ADMIN_HTML);
@@ -190,6 +256,7 @@ const ADMIN_HTML = `<!doctype html>
     <div class="auth-area">
       <input type="password" id="tokenInput" placeholder="Admin token" />
       <button id="loadBtn">Load</button>
+      <button id="resetBtn" style="background:#ff4a6e;color:#fff;margin-left:6px;">⟲ Reset world</button>
     </div>
   </header>
 
@@ -242,6 +309,25 @@ const ADMIN_HTML = `<!doctype html>
     });
 
     document.getElementById('refreshBtn').addEventListener('click', loadAll);
+
+    document.getElementById('resetBtn').addEventListener('click', async () => {
+      const token = sessionStorage.getItem('admin-token');
+      if (!token) { alert('Load with the admin token first.'); return; }
+      const ok = confirm('RESET WORLD?\\n\\nThis will:\\n  • wipe all contributions, cooldowns, house yield, epochs\\n  • set the epoch anchor to NOW (epoch 0 starts again)\\n\\nPlayers stay, wallets stay. This cannot be undone.');
+      if (!ok) return;
+      const r = await fetch('/admin/api/reset-world', {
+        method: 'POST',
+        headers: { 'x-admin-token': token, 'content-type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      if (r.ok) {
+        const data = await r.json();
+        alert('World reset.\\n\\n' + JSON.stringify(data.summary, null, 2));
+        loadAll();
+      } else {
+        alert('Reset failed: ' + r.status);
+      }
+    });
 
     document.getElementById('tokenInput').value = sessionStorage.getItem('admin-token') || '';
     if (sessionStorage.getItem('admin-token')) loadAll();

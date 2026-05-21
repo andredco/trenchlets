@@ -4,6 +4,10 @@
 
 import { query, getOne } from "./db/pool.js";
 import { tierFor } from "./tier.js";
+import { currentEpochIdx } from "./epoch.js";
+
+// Re-export so existing callers (server/index.js, ws.js) keep working.
+export { currentEpochIdx };
 
 const TIER_MULT = {
   shrimp: 1.0,
@@ -27,13 +31,6 @@ const DIFFICULTY_COOLDOWN_MS = {
 
 const MIN_DURATION_MS = 10_000; // shorter sessions are rejected
 const MAX_DURATION_MS = 30 * 60 * 1000;
-
-const EPOCH_LENGTH_MS = 3 * 60 * 60 * 1000;
-const EPOCH_ANCHOR_MS = Date.UTC(2026, 4, 21, 0, 0, 0); // matches data.js
-
-export function currentEpochIdx(now = Date.now()) {
-  return Math.floor((now - EPOCH_ANCHOR_MS) / EPOCH_LENGTH_MS);
-}
 
 // Submit a contribution. Validates against cooldown, duration bounds,
 // and score bounds. Returns the awarded percent or throws.

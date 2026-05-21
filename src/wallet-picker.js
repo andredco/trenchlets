@@ -16,11 +16,11 @@ export function pickWallet() {
     const installed = all.filter((w) => w.installed);
     const others = all.filter((w) => !w.installed);
 
-    // Auto-pick if exactly one installed.
-    if (installed.length === 1) {
-      resolve(installed[0]);
-      return;
-    }
+    // Always show the picker. We used to auto-resolve when only one wallet
+    // was installed, but doing so made `adapter.connect()` fire from a
+    // resolved promise (no longer a fresh user gesture) — Phantom and
+    // Solflare would silently swallow the popup. Showing the picker every
+    // time means the popup is always triggered by a real click event.
 
     const overlay = document.createElement("div");
     overlay.className = "wallet-picker-overlay";

@@ -13,6 +13,7 @@ import http from "node:http";
 import { newNonce, verifySignature, refreshSession, revoke } from "./auth.js";
 import { getTier } from "./tier.js";
 import { getLeaderboard, getHouseStandings, currentEpochIdx } from "./contributions.js";
+import { loadEpochAnchor, getEpochAnchor, EPOCH_LENGTH_MS } from "./epoch.js";
 import { startPriceFeed, getSnapshot } from "./prices.js";
 import { attachWS } from "./ws.js";
 import { adminRouter } from "./admin/routes.js";
@@ -46,7 +47,8 @@ app.get("/api/config", (req, res) => {
   res.json({
     trenchletsMint: process.env.TRENCHLETS_MINT || "",
     vaultAddress: process.env.VAULT_ADDRESS || "CHAcAiFhnfrKwZ22DmsTu2WVeMaym466n3hWPBWPFGNZ",
-    epochLengthMs: 3 * 60 * 60 * 1000,
+    epochLengthMs: EPOCH_LENGTH_MS,
+    epochAnchorMs: getEpochAnchor(),
     distributionPct: 50,
     epoch: currentEpochIdx(),
   });
@@ -228,7 +230,9 @@ attachWS(server);
 server.listen(PORT, async () => {
   console.log(`Trenchlets server listening on :${PORT}`);
   console.log(`Static frontend: ${DIST_DIR}`);
-  console.log(`Epoch: ${currentEpochIdx()}`);
+  try { await loadEpochAnchor(); }
+  catch (err) { console.warn("loadEpochAnchor failed:", err.message); }
+  console.log(`Epoch: ${currentEpochIdx()} (anchor=${new Date(getEpochAnchor()).toISOString()})`);
   try { await seedCommunityMeta(); }
   catch (err) { console.warn("seed community_meta failed:", err.message); }
   if (TRACK_MINTS.length > 0) {

@@ -1139,36 +1139,37 @@ async function connectWallet() {
     return false;
   }
   const adapter = picked.adapter;
-  console.log("[connectWallet] picked:", adapter.name, "ready:", adapter.readyState, "already connected:", adapter.connected);
+  console.log(
+    "[connectWallet] picked:", adapter.name,
+    "ready:", adapter.readyState,
+    "already connected:", adapter.connected,
+  );
 
-  // 1. Force a visible connect prompt. The adapter normally short-circuits
-  //    if the site is already trusted (Phantom's `isConnected` is true on
-  //    reload), which means no popup ever appears. We bypass that by:
-  //      - disconnecting both at the adapter level AND on the underlying
-  //        provider so Phantom flips its `isConnected` flag to false
-  //      - then calling adapter.connect(), which will see `isConnected:false`
-  //        and trigger the actual wallet UI
-  try { await adapter.disconnect(); } catch {}
-  try {
-    const rawProvider = window.phantom?.solana || window.solana;
-    if (rawProvider && typeof rawProvider.disconnect === "function" && rawProvider.isConnected) {
-      await rawProvider.disconnect();
+  // 1. Connect. We deliberately do NOT force-disconnect first — that dance
+  //    consumes the user gesture and on Phantom often leaves the extension
+  //    stuck in "approving connection" with no popup. If the site is already
+  //    trusted, `adapter.connected` is true and connect() resolves instantly.
+  //    The signMessage step below ALWAYS shows a popup, so the user still
+  //    has to explicitly approve every sign-in.
+  if (!adapter.connected) {
+    try {
+      await adapter.connect();
+    } catch (err) {
+      console.warn("[connectWallet] connect rejected:", err);
+      const msg = String(err?.message || err);
+      let userMsg = `Open ${adapter.name} and approve the connection.`;
+      if (/user reject|reject|denied|cancel/i.test(msg)) {
+        userMsg = "Connection rejected. Try again.";
+      } else if (/not detected|not installed|undefined/i.test(msg)) {
+        userMsg = `${adapter.name} extension not detected. Install it from ${adapter.url}.`;
+      }
+      pushNotification({
+        type: "event",
+        title: "WALLET CONNECT FAILED",
+        text: userMsg,
+      });
+      return false;
     }
-  } catch (err) {
-    console.warn("[connectWallet] raw disconnect failed (non-fatal):", err);
-  }
-  // Small breath so Phantom's internal state actually flips before we ask again.
-  await new Promise((r) => setTimeout(r, 60));
-  try {
-    await adapter.connect();
-  } catch (err) {
-    console.warn("[connectWallet] connect rejected:", err);
-    pushNotification({
-      type: "event",
-      title: "WALLET CANCELLED",
-      text: `Approve the connection in ${adapter.name}.`,
-    });
-    return false;
   }
 
   const wallet = adapter.publicKey?.toString();
