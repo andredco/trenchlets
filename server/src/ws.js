@@ -199,13 +199,11 @@ export function attachWS(server) {
         }
 
         case TYPES.CONTRIB: {
-          // Wallet required for contributions (anti-sybil). Guests can browse,
-          // chat, and walk around, but can't move yield.
-          if (!ctx.authed) {
-            return send(ws, TYPES.CONTRIB_ERR, { reason: "wallet_required" });
-          }
+          // Both authed wallets and guests can submit. Tier multiplier
+          // only applies if a wallet is signed in. Guests run at SHRIMP
+          // tier (1.0x), no airdrop weight downstream.
           let tierId = "shrimp";
-          if (ctx.player.wallet) {
+          if (ctx.authed && ctx.player.wallet) {
             try { tierId = (await getTier(ctx.player.wallet)).tier_id; } catch {}
           }
           try {

@@ -45,7 +45,7 @@ import { bakeCharacterHD, makeCharacterPalette, HAIR_COLORS, SKIN_TONES } from "
 import { launchMinigame, isMinigameActive, getMinigameCooldown } from "./minigames/index.js";
 import { getMultiplayer, getPlayerId, MSG, saveSession as mpSaveSession, getDisplayName as mpGetDisplayName, setDisplayName as mpSetDisplayName, getMe } from "./multiplayer.js";
 import { pickWallet } from "./wallet-picker.js";
-import { listAvailableWallets } from "./wallets.js";
+import { adapter as walletAdapter } from "./wallets.js";
 
 const mp = getMultiplayer();
 
@@ -607,12 +607,15 @@ function joinCommunity(communityId) {
 
 function contributeAtBoard(communityId, taskId) {
   const me = getMe?.();
-  // Wallet-and-signed-in required to play the boards. Guests get blocked here.
-  if (!state.player.wallet || !me?.authed) {
+  // Players need a session — either wallet-signed-in OR guest. The
+  // server still records the contribution under the player's ID
+  // (hardware id for guests) so cooldowns + leaderboards work, but
+  // guests have no airdrop weight (no $TRENCHLETS holdings).
+  if (!state.player.wallet && !state.player.guest) {
     pushNotification({
       type: "event",
-      title: "WALLET REQUIRED",
-      text: "Connect a Solana wallet and sign in to play the boards.",
+      title: "PRESS START",
+      text: "Connect a wallet or enter as guest before playing.",
     });
     return;
   }
@@ -670,10 +673,14 @@ function contributeAtBoard(communityId, taskId) {
 }
 
 function pickContributionOwner(community) {
-  // Wallet-only world: must have claimed a house. Returns the player's
-  // own house, or the community whose board they're at as a fallback
-  // (which contributeAtBoard rejects upstream if no wallet is signed in).
+  // Wallet-signed players boost their claimed house.
   if (state.player.community) return state.player.community;
+  // Guests boost a random house each play (the one whose board they're at
+  // is excluded so they distribute support around the city).
+  if (state.player.guest) {
+    const pool = COMMUNITIES.filter((c) => c.id !== community?.id || COMMUNITIES.length === 1);
+    return pool[Math.floor(Math.random() * pool.length)] || community;
+  }
   return community;
 }
 
@@ -1114,55 +1121,42 @@ walletButton.addEventListener("click", async () => {
 // Desktop + no extension: open phantom.app/download in a new tab.
 // Mobile: deep-link into the Phantom app's in-app browser.
 async function connectWallet() {
-  // Show the wallet picker (or auto-pick if exactly one is installed).
-  const installed = listAvailableWallets().filter((w) => w.available);
-  console.log("[connectWallet] installed wallets:", installed.map((w) => w.id));
-
-  if (installed.length === 0) {
-    // Nothing installed — picker will show install links.
-  }
-
-  const picked = await pickWallet();
-  if (!picked) {
-    console.log("[connectWallet] picker cancelled");
+  // Open the picker — Wallet Standard discovery handles every modern wallet.
+  const walletEntry = await pickWallet();
+  if (!walletEntry) {
+    console.log("[connectWallet] cancelled");
     return false;
   }
-  const { wallet: walletDef, provider } = picked;
-  console.log("[connectWallet] picked:", walletDef.id, "provider:", provider);
+  console.log("[connectWallet] picked:", walletEntry.name);
 
-  if (!provider) {
-    pushNotification({
-      type: "event",
-      title: `${walletDef.name.toUpperCase()} REQUIRED`,
-      text: `Install ${walletDef.name} and refresh.`,
-    });
+  let api;
+  try {
+    api = await walletAdapter(walletEntry);
+  } catch (err) {
+    console.warn("[connectWallet] adapter failed:", err);
+    pushNotification({ type: "event", title: "WALLET ERROR", text: err.message });
     return false;
   }
 
+  // 1. Connect — pops the wallet UI for approval.
   let wallet;
   try {
-    const resp = await provider.connect();
-    // Different wallets put publicKey in slightly different places.
-    const pubkey = resp?.publicKey || provider.publicKey;
-    wallet = pubkey?.toString?.() || pubkey;
-    if (!wallet) throw new Error("no public key returned");
+    wallet = await api.connect();
     console.log("[connectWallet] connected:", wallet);
   } catch (err) {
     console.warn("[connectWallet] connect rejected:", err);
-    pushNotification({ type: "event", title: "WALLET CANCELLED", text: `Approve the connection in ${walletDef.name}.` });
+    pushNotification({ type: "event", title: "WALLET CANCELLED", text: `Approve the connection in ${walletEntry.name}.` });
     return false;
   }
 
-  // Server-side sign-in: nonce → sign → verify → session token.
+  // 2. Server sign-in: nonce → sign → verify → token.
   try {
     const nonceRes = await fetch(`/api/auth/nonce?wallet=${encodeURIComponent(wallet)}`);
     if (!nonceRes.ok) throw new Error("nonce fetch failed");
     const { message } = await nonceRes.json();
     const encoded = new TextEncoder().encode(message);
-    const signed = await provider.signMessage(encoded, "utf8");
-    // Different wallets return signature in different shapes.
-    const sigBytes = signed?.signature || signed;
-    const sigB58 = bs58Encode(sigBytes instanceof Uint8Array ? sigBytes : new Uint8Array(sigBytes));
+    const sigBytes = await api.signMessage(encoded);
+    const sigB58 = bs58Encode(sigBytes);
     const verifyRes = await fetch("/api/auth/verify", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -1186,11 +1180,11 @@ async function connectWallet() {
     return true;
   } catch (err) {
     console.warn("sign-in failed:", err);
-    try { await provider.disconnect(); } catch {}
+    try { await api.disconnect(); } catch {}
     pushNotification({
       type: "event",
       title: "SIGNATURE REQUIRED",
-      text: `Sign the message in ${walletDef.name} to prove you own the wallet.`,
+      text: `Sign the message in ${walletEntry.name} to prove you own the wallet.`,
     });
     return false;
   }
