@@ -280,21 +280,29 @@ function runStages(gameDef, difficulty, houseColor, onAllDone) {
       color: houseColor,
       maxMs: stageMs,
       onScore: (s) => { scoreEl.textContent = `${totalPts + Math.round(s * 100)} pts`; },
-      onFinish: (s) => {
-        const pts = Math.round(Math.max(0, Math.min(1, s)) * 100);
-        stageScores.push(pts);
-        totalPts += pts;
-        if (activeGame?.destroy) activeGame.destroy();
-        activeGame = null;
-        overlay.remove();
-        overlayEl = null;
-        currentStage++;
-        if (currentStage > TOTAL_STAGES || quit) {
-          showResults(stageScores, gameDef.id, difficulty, houseColor, onAllDone);
-        } else {
-          setTimeout(() => startStage(currentStage), 500);
-        }
-      },
+      onFinish: (() => {
+        // Guard: some minigames fire onFinish from both their internal end
+        // condition AND from destroy(). Without this latch the stage counter
+        // could tick past TOTAL_STAGES.
+        let done = false;
+        return (s) => {
+          if (done) return;
+          done = true;
+          const pts = Math.round(Math.max(0, Math.min(1, s)) * 100);
+          stageScores.push(pts);
+          totalPts += pts;
+          if (activeGame?.destroy) activeGame.destroy();
+          activeGame = null;
+          overlay.remove();
+          overlayEl = null;
+          currentStage++;
+          if (currentStage > TOTAL_STAGES || quit) {
+            showResults(stageScores, gameDef.id, difficulty, houseColor, onAllDone);
+          } else {
+            setTimeout(() => startStage(currentStage), 500);
+          }
+        };
+      })(),
     });
   }
 
@@ -330,13 +338,13 @@ function showResults(stageScores, gameId, difficulty, houseColor, onAllDone) {
     <header class="mg-head">
       <div>
         <h2 class="mg-title" style="color:${esc(houseColor)}">RESULTS</h2>
-        <p class="mg-sub">${esc(diffMeta.label)} · ${stageScores.length} stages</p>
+        <p class="mg-sub">${esc(diffMeta.label)} · ${stageCount} stages</p>
       </div>
     </header>
     <div class="mg-body">
       <div class="mg-result-breakdown">${breakdownHtml}</div>
-      <div class="mg-result-total" style="color:${esc(houseColor)}">${rawTotal} / ${maxPossible} total</div>
-      <div class="mg-result-yield">House vault yield <strong style="color:${esc(houseColor)}">+${totalContrib}%</strong></div>
+      <div class="mg-result-total" style="color:${esc(houseColor)}">${(avgScore * 100).toFixed(0)}% accuracy</div>
+      <div class="mg-result-yield">House vault yield <strong style="color:${esc(houseColor)}">+${totalContrib}</strong></div>
       <div class="mg-result-cd">This game on cooldown: ${formatTime(diffMeta.cooldownMs)}<br><small>Other games + difficulties are still available.</small></div>
       <button class="mg-done-btn" style="background:${esc(houseColor)}">DONE</button>
     </div>
