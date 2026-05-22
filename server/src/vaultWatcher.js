@@ -28,15 +28,15 @@ export function subscribeVault(cb) {
   return () => { listeners = listeners.filter((l) => l !== cb); };
 }
 
+// Default vault address baked in so the watcher works without env config.
+// Override via VAULT_ADDRESS env var if you ever rotate wallets.
+const DEFAULT_VAULT_ADDRESS = "CHAcAiFhnfrKwZ22DmsTu2WVeMaym466n3hWPBWPFGNZ";
+
 export function startVaultWatcher() {
-  const address = process.env.VAULT_ADDRESS;
+  const address = process.env.VAULT_ADDRESS || DEFAULT_VAULT_ADDRESS;
   const rpcUrl = process.env.RPC_URL;
-  if (!address) {
-    console.warn("vault watcher: VAULT_ADDRESS not set");
-    return;
-  }
   if (!rpcUrl) {
-    console.warn("vault watcher: RPC_URL not set");
+    console.warn("vault watcher: RPC_URL not set, vault USD will stay at $0");
     return;
   }
   let pubkey;
