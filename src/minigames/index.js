@@ -17,12 +17,12 @@ const REGISTRY = [
 ];
 
 const DIFFICULTY_META = {
-  easy:   { label: "EASY",   color: "#5cff9a", pct: 2, cooldownMs: 60 * 60 * 1000,     desc: "Relaxed pace. +2% max per stage." },
-  medium: { label: "MEDIUM", color: "#ffd84a", pct: 4, cooldownMs: 90 * 60 * 1000,     desc: "Faster and trickier. +4% max per stage." },
-  hard:   { label: "HARD",   color: "#ff4a6e", pct: 6, cooldownMs: 2 * 60 * 60 * 1000, desc: "Intense. One mistake costs you. +6% max per stage." },
+  easy:   { label: "EASY",   color: "#5cff9a", pct: 2, cooldownMs: 60 * 60 * 1000,     desc: "Relaxed pace. ~2 yield max." },
+  medium: { label: "MEDIUM", color: "#ffd84a", pct: 4, cooldownMs: 90 * 60 * 1000,     desc: "Faster and trickier. ~4 yield max." },
+  hard:   { label: "HARD",   color: "#ff4a6e", pct: 6, cooldownMs: 2 * 60 * 60 * 1000, desc: "Intense. One mistake costs you. ~6 yield max." },
 };
 
-const TOTAL_STAGES = 10;
+const TOTAL_STAGES = 3;
 // Per-(game, difficulty) cooldown. Map keyed JSON in localStorage so each
 // minigame's cooldown is independent — finishing Rhythm Rush doesn't lock
 // Memory Mint, etc.
@@ -304,9 +304,12 @@ function runStages(gameDef, difficulty, houseColor, onAllDone) {
 // ── Results ─────────────────────────────────────────────────
 function showResults(stageScores, gameId, difficulty, houseColor, onAllDone) {
   const diffMeta = DIFFICULTY_META[difficulty];
-  const maxPossible = TOTAL_STAGES * 100;
-  const rawTotal = stageScores.reduce((a, b) => a + b, 0);
-  const totalContrib = ((rawTotal / maxPossible) * diffMeta.pct * stageScores.length).toFixed(2);
+  // Average score across stages (0..1), then scale by difficulty's max yield.
+  // A perfect easy run = +2 yield, perfect medium = +4, perfect hard = +6.
+  // No stage-count multiplier — adding stages doesn't inflate the cap.
+  const stageCount = Math.max(1, stageScores.length);
+  const avgScore = stageScores.reduce((a, b) => a + b, 0) / (stageCount * 100);
+  const totalContrib = (avgScore * diffMeta.pct).toFixed(2);
 
   // Cooldown applies ONLY to this (game, difficulty) pair.
   setCooldownFor(gameId, difficulty, diffMeta.cooldownMs);

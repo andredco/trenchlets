@@ -19,6 +19,7 @@ import { attachWS } from "./ws.js";
 import { adminRouter } from "./admin/routes.js";
 import { seedCommunityMeta } from "./seedCommunities.js";
 import { startVaultWatcher, getVaultSnapshot } from "./vaultWatcher.js";
+import { startWorldEvents } from "./worldEvents.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 3000;
@@ -243,6 +244,7 @@ server.listen(PORT, async () => {
     console.log("No TRACK_MINTS configured — price feed idle until tokens are configured");
   }
   startVaultWatcher();
+  startWorldEvents();
 });
 
 // Graceful shutdown

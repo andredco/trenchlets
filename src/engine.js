@@ -170,7 +170,10 @@ export function initEngine(canvas, minimap) {
   state.world = generateWorld();
   initPlayer();
   spawnNPCs();
-  scheduleNextEvent();
+  // World events are server-driven. Schedule local event timer far out
+  // so the local fallback never fires; server broadcasts apply via
+  // applyServerEvent().
+  state.event.nextAt = Number.MAX_SAFE_INTEGER;
 }
 
 function initPlayer() {
@@ -285,6 +288,7 @@ export function tick(now) {
 
   if (!state.ui.splashOpen) updatePlayer(dt);
   updateNPCs(dt);
+  updateRemotePlayers(dt);
   updateCamera(dt);
   updateParticles(dt);
   updateFloats(dt);
@@ -297,6 +301,35 @@ export function tick(now) {
 
   render();
   drawMinimap();
+}
+
+// =========================================================
+// Remote players (interpolation)
+// =========================================================
+// presence packets arrive every ~200ms; if we just snapped rp.x/rp.y
+// to the latest packet the character would tick. Instead each remote
+// stores a (from, to) interval and we lerp toward `to` each frame.
+function updateRemotePlayers(dt) {
+  const now = performance.now();
+  for (const rp of state.remotePlayers.values()) {
+    const span = Math.max(1, rp._toAt - rp._fromAt);
+    const t = Math.min(1, Math.max(0, (now - rp._fromAt) / span));
+    // ease-out for a slight smoothing on the tail of the lerp
+    const e = 1 - Math.pow(1 - t, 2);
+    rp.x = rp._fromX + (rp._toX - rp._fromX) * e;
+    rp.y = rp._fromY + (rp._toY - rp._fromY) * e;
+    // animation frame advance while in motion
+    rp.moving = t < 0.98;
+    if (rp.moving) {
+      rp.animTimer = (rp.animTimer || 0) + dt;
+      if (rp.animTimer > 140) {
+        rp.animFrame = ((rp.animFrame || 0) + 1) % 2;
+        rp.animTimer = 0;
+      }
+    } else {
+      rp.animFrame = 0;
+    }
+  }
 }
 
 function updatePlayer(dt) {
@@ -523,6 +556,11 @@ function updateWhale(dt) {
 }
 
 function updateEvents(dt) {
+  // World events are SERVER-AUTHORITATIVE. The server picks events,
+  // schedules gaps, and broadcasts start/end via the websocket. The
+  // engine only ticks the active event's clock for local effects
+  // (disaster particles, vault freeze, etc.). When the server-pushed
+  // event expires we clear it locally and wait for the next push.
   if (state.event.active && state.time.totalMs > state.event.until) {
     const ended = state.event.active;
     state.event.active = null;
@@ -532,13 +570,47 @@ function updateEvents(dt) {
     state.disaster.hp = 1;
     state.hooks.onEvent?.({ type: "end", event: ended });
   }
-  if (!state.event.active && state.time.totalMs >= state.event.nextAt) {
-    startRandomEvent();
-  }
   // (vault-overflow event removed — no more coin rain into the central vault)
   if (state.event.active?.kind === "disaster") {
     tickDisaster(dt);
   }
+}
+
+// Called from the multiplayer layer when the server broadcasts
+// { type: "start", event } or { type: "end", event }. Server time is
+// included in the welcome snapshot so we map "until" (server ms) onto
+// our local game clock (totalMs).
+export function applyServerEvent(payload, serverNow = Date.now()) {
+  if (!payload) return;
+  const localOffset = state.time.totalMs - serverNow;
+  if (payload.type === "end") {
+    if (state.event.active) {
+      const ended = state.event.active;
+      state.event.active = null;
+      state.event.communityId = null;
+      state.disaster.active = null;
+      state.disaster.targetId = null;
+      state.disaster.hp = 1;
+      state.hooks.onEvent?.({ type: "end", event: ended });
+    }
+    return;
+  }
+  // start
+  const event = payload.event;
+  if (!event) return;
+  state.event.active = event;
+  state.event.until = (event.until || (Date.now() + (event.durationMs || 30000))) + localOffset;
+  state.event.communityId = event.communityId || null;
+  state.event.nextAt = state.time.totalMs + 24 * 60 * 60 * 1000; // disable local scheduler
+  if (event.id === "whale-visit") {
+    spawnWhale();
+  }
+  if (event.kind === "disaster" && event.communityId) {
+    state.disaster.active = event.id;
+    state.disaster.targetId = event.communityId;
+    state.disaster.hp = 1;
+  }
+  state.hooks.onEvent?.({ type: "start", event, communityId: event.communityId });
 }
 
 function tickDisaster(dt) {

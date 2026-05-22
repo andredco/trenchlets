@@ -65,13 +65,12 @@ export async function submitContribution({
     throw new Error("on cooldown");
   }
 
-  // Compute % awarded
+  // Compute % awarded.
+  // Same formula as the client preview: avgScore × difficulty.pct × tier × event.
+  // No stage-count multiplier — yield does NOT scale with how many stages we run.
   const tierMul = TIER_MULT[tierId] || 1;
   const diffMul = DIFFICULTY_MULT[difficulty];
-  // Same formula as the client preview: avg score across stages × diff × stages
-  // Here rawScore is the average for the whole session.
-  const stages = 10;
-  const percent = rawScore * diffMul * stages * tierMul * eventMult;
+  const percent = rawScore * diffMul * tierMul * eventMult;
 
   // Insert ledger + update house yield + set cooldown atomically
   await query("BEGIN");

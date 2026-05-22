@@ -39,6 +39,7 @@ import {
   dousFire,
   executeRaid,
   getEventMultiplier,
+  applyServerEvent,
 } from "./engine.js";
 import { SFX, setMuted } from "./audio.js";
 import { bakeCharacterHD, makeCharacterPalette, HAIR_COLORS, SKIN_TONES } from "./sprites.js";
@@ -253,12 +254,24 @@ mp.on("presence", (payload) => {
   const community = payload.communityId
     ? COMMUNITIES.find((c) => c.id === payload.communityId)
     : null;
+  const now = performance.now();
   if (!rp) {
     // New remote — bake their sprite set.
     rp = {
       id: payload.id,
+      // Visible position (interpolated each frame in the engine)
       x: payload.x,
       y: payload.y,
+      // Last-received "from" snapshot, "to" snapshot for interpolation.
+      // The engine's drawCharacter uses rp.x/rp.y; the engine tick blends
+      // toward the latest snapshot so movement looks smooth even though
+      // presence packets only arrive every ~200ms.
+      _fromX: payload.x,
+      _fromY: payload.y,
+      _toX: payload.x,
+      _toY: payload.y,
+      _fromAt: now,
+      _toAt: now,
       dir: payload.dir || "down",
       flipX: !!payload.flipX,
       animFrame: 0,
@@ -273,14 +286,22 @@ mp.on("presence", (payload) => {
     bakeRemoteSprites(rp, community);
     remotePlayers.set(payload.id, rp);
   } else {
-    // Smooth-ish position update (snap for now; can lerp later).
-    const oldX = rp.x;
-    const oldY = rp.y;
-    rp.x = payload.x;
-    rp.y = payload.y;
+    // Buffer the new target. The engine will lerp x/y toward (toX, toY)
+    // over the duration between the previous and current packets, which
+    // is roughly the broadcast interval (200ms). That kills the "ticking"
+    // look — characters glide instead of teleporting.
+    rp._fromX = rp.x;
+    rp._fromY = rp.y;
+    rp._toX = payload.x;
+    rp._toY = payload.y;
+    rp._fromAt = now;
+    // We use a fixed lerp window slightly longer than the broadcast rate
+    // so that if a packet is late, the character keeps drifting briefly
+    // instead of stalling. 230ms ≈ broadcast rate (200ms) + jitter.
+    rp._toAt = now + 230;
     rp.dir = payload.dir || rp.dir;
     rp.flipX = !!payload.flipX;
-    rp.moving = oldX !== payload.x || oldY !== payload.y;
+    rp.moving = rp._fromX !== payload.x || rp._fromY !== payload.y;
     rp.name = payload.displayName || rp.name;
     if (community && community.id !== rp.community?.id) {
       rp.community = community;
@@ -329,14 +350,23 @@ mp.on("contrib_err", (payload) => {
 mp.on("house_state", (payload) => {
   // Authoritative server standings — overwrite local progress display.
   if (!payload?.standings) return;
+  // Track max yield across the world so the per-house progress bar fills
+  // relative to whoever's leading. This is purely visual; the underlying
+  // numbers stay raw yield points for the settler to weight.
+  let maxYield = 0;
+  for (const row of payload.standings) {
+    if (Number(row.epoch_yield) > maxYield) maxYield = Number(row.epoch_yield);
+  }
+  state.maxHouseYield = maxYield;
   for (const row of payload.standings) {
     const houseTasks = state.taskState[row.community_id];
     if (!houseTasks) continue;
-    // Distribute the epoch_yield evenly across our 3 task slots so the
-    // dashboard bars reflect the server's total.
-    const slot = Number(row.epoch_yield) / 3;
+    const yieldPts = Number(row.epoch_yield);
+    // Distribute the epoch_yield evenly across the 3 task slots so each
+    // task card displays its share of the house's total.
+    const slot = yieldPts / 3;
     for (const taskId in houseTasks) {
-      houseTasks[taskId].progress = Math.min(100, slot);
+      houseTasks[taskId].progress = slot;
     }
   }
 });
@@ -359,6 +389,18 @@ mp.on("welcome", (payload) => {
     state.vault = payload.vault.usd;
     state.vaultSol = payload.vault.sol;
   }
+  // Pick up whatever world event is currently active on the server so
+  // late joiners see the same eclipse/raid hour everyone else does.
+  if (payload?.worldEvent?.active) {
+    applyServerEvent({ type: "start", event: payload.worldEvent.active }, payload.worldEvent.serverNow);
+  }
+});
+
+// Server-driven world events. The server picks events globally so every
+// client sees the same eclipse / raid hour / spotlight at the same time.
+mp.on("world_event", (payload) => {
+  if (!payload) return;
+  applyServerEvent(payload, Date.now());
 });
 
 mp.on("chat", (payload) => {
@@ -965,13 +1007,20 @@ function renderTasks() {
       (sum, t) => sum + (state.taskState[owner.id]?.[t.id]?.progress || 0),
       0,
     );
-    dashYield.textContent = `+${(totalYield / TASKS.length).toFixed(1)}%`;
+    // Display the raw yield points (sum across this house's task slots).
+    // No "%" suffix — yield is a weight, not a fraction of anything.
+    dashYield.textContent = `${totalYield.toFixed(1)} pts`;
   }
   if (dashTier) dashTier.textContent = state.player.tier.label;
 
   for (const task of TASKS) {
     const data = state.taskState[owner.id][task.id];
-    const progress = Math.min(100, Math.floor(data.progress));
+    const yieldPts = data.progress;
+    // Visual bar: fill relative to the leading house. No 0-100% scale here
+    // since yield is unbounded (it's a weight that gets normalized at
+    // settlement time, not a fraction of anything).
+    const leaderSlot = Math.max(1, (state.maxHouseYield || 0) / 3);
+    const barPct = Math.min(100, Math.max(2, (yieldPts / leaderSlot) * 100));
     const cat = TASK_CATEGORIES[task.category];
     const required = TIERS[task.tierMin];
     const tierOk = tierIndex(state.player.tier.id) >= task.tierMin;
@@ -987,9 +1036,9 @@ function renderTasks() {
         ${tierOk ? "" : `<span class="task-pill tier-pill" style="border-color:${required.color}66;color:${required.color}">${required.label}+</span>`}
       </div>
       <p class="task-card-v2-desc">${task.short}</p>
-      <div class="progress-shell"><div class="progress-fill" style="width:${progress}%;background:${cat.color}"></div></div>
+      <div class="progress-shell"><div class="progress-fill" style="width:${barPct}%;background:${cat.color}"></div></div>
       <div class="task-card-v2-foot">
-        <span class="task-meta-v2">${owner.name} · ${progress}% complete</span>
+        <span class="task-meta-v2">${owner.name} · ${yieldPts.toFixed(1)} yield</span>
         <button type="button" class="task-play-btn" ${tierOk && cooldown <= 0 ? "" : "disabled"}>
           ${cooldown > 0 ? `🕒 ${formatLong(cooldown)}` : tierOk ? "PLAY ▶" : `${required.label}+ LOCKED`}
         </button>
