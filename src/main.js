@@ -40,6 +40,7 @@ import {
   executeRaid,
   getEventMultiplier,
   applyServerEvent,
+  sayRemote,
 } from "./engine.js";
 import { SFX, setMuted } from "./audio.js";
 import { bakeCharacterHD, makeCharacterPalette, HAIR_COLORS, SKIN_TONES } from "./sprites.js";
@@ -391,8 +392,14 @@ mp.on("welcome", (payload) => {
   }
   // Pick up whatever world event is currently active on the server so
   // late joiners see the same eclipse/raid hour everyone else does.
-  if (payload?.worldEvent?.active) {
-    applyServerEvent({ type: "start", event: payload.worldEvent.active }, payload.worldEvent.serverNow);
+  if (payload?.worldEvent) {
+    if (payload.worldEvent.active) {
+      applyServerEvent({ type: "start", event: payload.worldEvent.active }, payload.worldEvent.serverNow);
+    }
+    if (typeof payload.worldEvent.nextAt === "number") {
+      state.serverNextEventAt = payload.worldEvent.nextAt;
+      state.serverNowAt = payload.worldEvent.serverNow || Date.now();
+    }
   }
 });
 
@@ -400,16 +407,24 @@ mp.on("welcome", (payload) => {
 // client sees the same eclipse / raid hour / spotlight at the same time.
 mp.on("world_event", (payload) => {
   if (!payload) return;
-  applyServerEvent(payload, Date.now());
+  applyServerEvent(payload, payload.serverNow || Date.now());
+  if (typeof payload.nextAt === "number") {
+    state.serverNextEventAt = payload.nextAt;
+    state.serverNowAt = payload.serverNow || Date.now();
+  }
 });
 
 mp.on("chat", (payload) => {
   if (!payload) return;
+  // Don't echo our own chat — sendChat() already appended it optimistically.
+  if (payload.playerId === getMe()?.id) return;
   appendChat({
     who: payload.displayName || "trenchlet",
     text: payload.text,
     cls: "remote",
   });
+  // Float a bubble above the remote so chat feels embodied, not just a log.
+  if (payload.playerId !== undefined) sayRemote(payload.playerId, payload.text);
 });
 
 // Expose remotePlayers for engine to render other players.
@@ -934,10 +949,16 @@ function updateDomLight() {
     eventClock.textContent = formatTimeShort(remaining);
     eventClockLabel.style.color = "var(--gold)";
   } else {
-    const left = Math.max(0, state.event.nextAt - state.time.totalMs);
+    // Server-driven countdown. The server tells us when the next event
+    // fires (state.serverNextEventAt, in wall-clock ms) so all clients
+    // count down to the same moment regardless of when they joined.
+    let left = 0;
+    if (typeof state.serverNextEventAt === "number") {
+      left = Math.max(0, state.serverNextEventAt - Date.now());
+    }
     eventClockLabel.textContent = "NEXT EVENT";
     eventClockLabel.style.color = "var(--muted)";
-    eventClock.textContent = formatTimeShort(left);
+    eventClock.textContent = left > 0 ? formatTimeShort(left) : "soon";
   }
   updateTierHud();
 }
@@ -1126,9 +1147,15 @@ function sendChat(rawText) {
   sayPlayer(text);
   const who = getPlayerHandle();
   const color = state.player.community?.color || "#4ff7ff";
+  // Show our own message immediately, optimistic.
   appendChat({ who, text, color, cls: "self" });
   SFX.chat();
+  // Cross-tab echo on the same browser (kept for legacy; mostly redundant
+  // now that the server bounces every chat back to every connected client).
   if (channel) channel.postMessage({ type: "chat", who, text, color });
+  // Send to the server so OTHER PLAYERS see it. Without this, chat was
+  // local-only and your friend never received any message you typed.
+  mp.send(MSG.CHAT, { text });
 }
 
 function appendChat({ who, text, color, cls = "" }) {

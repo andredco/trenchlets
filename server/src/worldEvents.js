@@ -27,11 +27,12 @@ const COMMUNITY_IDS = [
   "burnie","wtdd","buttcoin","wojak","fartcoin",
 ];
 
-const MIN_GAP_MS = 80 * 1000;
-const MAX_GAP_MS = 130 * 1000;
+const MIN_GAP_MS = 12 * 60 * 1000; // 12 minutes between events
+const MAX_GAP_MS = 18 * 60 * 1000; // up to 18 — averages ~15
 
 let active = null;          // { id, title, desc, color, durationMs, kind, communityId, startedAt, until }
-let nextAt = Date.now() + 30_000; // first event ~30s after boot
+// First event ~60s after boot so testers don't wait 15 min for the first one.
+let nextAt = Date.now() + 60 * 1000;
 let listeners = [];
 
 export function getActiveEvent() {
@@ -84,7 +85,8 @@ function startEvent() {
   // Schedule the next one after this one finishes + a random gap.
   nextAt = active.until + MIN_GAP_MS + Math.floor(Math.random() * (MAX_GAP_MS - MIN_GAP_MS));
   for (const cb of listeners) {
-    try { cb({ type: "start", event: active }); } catch (err) { console.warn(err); }
+    try { cb({ type: "start", event: active, nextAt, serverNow: Date.now() }); }
+    catch (err) { console.warn(err); }
   }
 }
 
@@ -92,7 +94,8 @@ function endEvent() {
   const ended = active;
   active = null;
   for (const cb of listeners) {
-    try { cb({ type: "end", event: ended }); } catch (err) { console.warn(err); }
+    try { cb({ type: "end", event: ended, nextAt, serverNow: Date.now() }); }
+    catch (err) { console.warn(err); }
   }
 }
 

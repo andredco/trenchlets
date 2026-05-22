@@ -856,6 +856,11 @@ function updateBubbles() {
   if (state.player.bubble && state.player.bubble.until < state.time.totalMs) {
     state.player.bubble = null;
   }
+  // Expire remote bubbles too so chat doesn't linger forever above
+  // someone who already moved on.
+  for (const rp of state.remotePlayers.values()) {
+    if (rp.bubble && rp.bubble.until < state.time.totalMs) rp.bubble = null;
+  }
 }
 
 function vaultAccrue(dt) {
@@ -1022,6 +1027,15 @@ export function spawnFloat(x, y, text, color) {
 
 export function sayPlayer(text) {
   state.player.bubble = { text, until: state.time.totalMs + 4200 };
+}
+
+// Show a chat bubble above a remote player when they speak. Same lifetime
+// as the player's own bubble so it feels symmetrical. Looked up by ID
+// since main.js holds the remotePlayers map.
+export function sayRemote(playerId, text) {
+  const rp = state.remotePlayers.get(playerId);
+  if (!rp) return;
+  rp.bubble = { text, until: state.time.totalMs + 4200 };
 }
 
 export function getPlayer() {
@@ -1566,9 +1580,9 @@ function drawFloats() {
 }
 
 function drawBubbles() {
-  const everyone = [state.player, ...state.npcs];
+  const everyone = [state.player, ...state.npcs, ...state.remotePlayers.values()];
   for (const e of everyone) {
-    if (!e.bubble) continue;
+    if (!e || !e.bubble) continue;
     const sx = e.x - state.cam.x;
     const sy = e.y - state.cam.y - 26;
     drawBubble(sx, sy, e.bubble.text, e === state.player);
