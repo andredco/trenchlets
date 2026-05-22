@@ -28,4 +28,17 @@ export default defineConfig({
       "bs58",
     ],
   },
+  // Local dev: forward /api and /ws to the Node server on :3000 so the
+  // frontend at :5173 can talk to a real backend without CORS dance.
+  // Run the backend in another terminal: `cd server && npm run dev`.
+  // Or just run `npm run dev:full` from the repo root to start both.
+  server: {
+    port: 5173,
+    proxy: {
+      "/api": "http://localhost:3000",
+      "/ws":  { target: "ws://localhost:3000", ws: true },
+      "/admin": "http://localhost:3000",
+      "/health": "http://localhost:3000",
+    },
+  },
 });

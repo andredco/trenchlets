@@ -1,0 +1,23 @@
+# =========================================================
+# Trenchlets · root-level Nixpacks config (web service)
+# =========================================================
+# Used when Railway deploys from the repo root. Builds the Vite
+# frontend into ./dist and starts the Node server which serves the
+# static frontend plus the websocket + REST API.
+#
+# Settler is a SEPARATE Railway service — point it at /settler/
+# (Settings -> Source -> Root Directory).
+
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+# The root package.json's `postinstall` already runs `npm install`
+# inside `server/`, so a single root install picks up both halves.
+cmds = ["npm install"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "npm start"

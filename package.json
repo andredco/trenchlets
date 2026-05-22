@@ -5,10 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
+    "dev:server": "node --watch server/src/index.js",
+    "dev:full": "concurrently -n web,api -c green,cyan \"npm run dev\" \"npm run dev:server\"",
     "build": "vite build",
-    "preview": "vite --host 0.0.0.0"
+    "preview": "vite --host 0.0.0.0",
+    "postinstall": "npm install --prefix server --no-audit --no-fund",
+    "start": "npm --prefix server run migrate && npm --prefix server start"
   },
   "devDependencies": {
+    "concurrently": "^9.1.0",
     "vite": "latest",
     "vite-plugin-node-polyfills": "^0.28.0"
   },

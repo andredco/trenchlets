@@ -1,0 +1,18 @@
+# =========================================================
+# Trenchlets · root-level Railway config (web service)
+# =========================================================
+# This is the ONE config Railway needs. When you "Deploy from
+# GitHub" with the repo root, this file tells Railway exactly how
+# to build and run.
+#
+# The settler is a separate service that points at /settler/.
+
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "npm start"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+healthcheckPath = "/health"
+healthcheckTimeout = 30
