@@ -47,7 +47,7 @@ app.get("/api/config", (req, res) => {
   res.set("Cache-Control", "public, max-age=30"); // brief cache, fast updates
   res.json({
     trenchletsMint: process.env.BOBLETS_MINT || "",
-    vaultAddress: process.env.VAULT_ADDRESS || "CHAcAiFhnfrKwZ22DmsTu2WVeMaym466n3hWPBWPFGNZ",
+    vaultAddress: process.env.VAULT_ADDRESS || "9skP9HNkMs1gfu7w27hkZTm88YnoMNxWbWaiXeDv7hgd",
     epochLengthMs: EPOCH_LENGTH_MS,
     epochAnchorMs: getEpochAnchor(),
     distributionPct: 50,

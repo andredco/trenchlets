@@ -457,7 +457,7 @@ export const CLAIM_LOCK_MS = 3 * 60 * 60 * 1000;
 export const VAULT_CONFIG = {
   // PUBLIC vault address (dev wallet — pump.fun creator rewards land here).
   // Wallet ONLY receives. The client cannot withdraw from it.
-  address: "CHAcAiFhnfrKwZ22DmsTu2WVeMaym466n3hWPBWPFGNZ",
+  address: "9skP9HNkMs1gfu7w27hkZTm88YnoMNxWbWaiXeDv7hgd",
   // Solana RPC endpoint used to read SOL + token balances. Plug in
   // mainnet-beta or a private RPC at deploy.
   rpcUrl: "",

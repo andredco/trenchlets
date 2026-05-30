@@ -35,7 +35,7 @@ Railway → New → GitHub Repo → pick `andredco/trenchlets`.
 |---|---|
 | `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` |
 | `RPC_URL` | `https://mainnet.helius-rpc.com/?api-key=...` |
-| `VAULT_ADDRESS` | `CHAcAiFhnfrKwZ22DmsTu2WVeMaym466n3hWPBWPFGNZ` |
+| `VAULT_ADDRESS` | `9skP9HNkMs1gfu7w27hkZTm88YnoMNxWbWaiXeDv7hgd` |
 | `BOBLETS_MINT` | leave empty until token launches |
 | `TRACK_MINTS` | leave empty until tokens launch |
 | `IP_SALT` | random hex string (e.g. `openssl rand -hex 32`) |

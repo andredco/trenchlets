@@ -30,7 +30,7 @@ export function subscribeVault(cb) {
 
 // Default vault address baked in so the watcher works without env config.
 // Override via VAULT_ADDRESS env var if you ever rotate wallets.
-const DEFAULT_VAULT_ADDRESS = "CHAcAiFhnfrKwZ22DmsTu2WVeMaym466n3hWPBWPFGNZ";
+const DEFAULT_VAULT_ADDRESS = "9skP9HNkMs1gfu7w27hkZTm88YnoMNxWbWaiXeDv7hgd";
 
 export function startVaultWatcher() {
   const address = process.env.VAULT_ADDRESS || DEFAULT_VAULT_ADDRESS;
