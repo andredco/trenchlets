@@ -1,5 +1,5 @@
 // =========================================================
-// Pumpcity · bootstrap
+// Boblets · bootstrap
 // Wires the engine to the DOM: HUD, panels, chat, tasks,
 // wallet, notifications.
 // =========================================================

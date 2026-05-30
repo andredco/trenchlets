@@ -279,17 +279,17 @@ code {
 /* Headline — proportioned for split layout */
 .lp-hero-title {
   font-family: "Baloo 2", "Plus Jakarta Sans", sans-serif;
-  font-size: clamp(2rem, 4.6vw, 3.6rem);
-  font-weight: 900;
-  line-height: 1.04;
-  letter-spacing: -0.035em;
+  font-size: clamp(2.1rem, 4.8vw, 3.8rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
   margin: 0 0 18px;
   color: var(--pf-text);
   animation: pf-fade-up 0.85s ease 0.1s both;
 }
 
 .lp-hero-title .grad {
-  background: linear-gradient(180deg, var(--pf-green) 0%, var(--pf-green-2) 100%);
+  background: linear-gradient(110deg, var(--pf-green) 0%, var(--pf-purple) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -323,26 +323,25 @@ code {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 14px 28px;
-  border-radius: var(--pf-radius-sm);
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 0.92rem;
+  padding: 15px 30px;
+  border-radius: 999px;
+  font-family: "Baloo 2", "Plus Jakarta Sans", sans-serif;
+  font-size: 0.98rem;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.01em;
   cursor: pointer;
   border: 1px solid transparent;
   transition: transform 0.15s ease, box-shadow 0.22s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
 .lp-btn.primary {
-  background: var(--pf-green);
-  color: #000;
-  box-shadow: 0 4px 28px var(--pf-green-glow);
+  background: linear-gradient(135deg, var(--pf-green) 0%, var(--pf-green-2) 100%);
+  color: #fff;
+  box-shadow: 0 6px 30px var(--pf-green-glow);
 }
 .lp-btn.primary:hover {
-  transform: translateY(-1px);
-  background: #2dff95;
-  box-shadow: 0 8px 40px var(--pf-green-glow);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 46px var(--pf-green-glow);
 }
 
 .lp-btn.ghost {
@@ -351,8 +350,9 @@ code {
   color: var(--pf-text);
 }
 .lp-btn.ghost:hover {
-  background: #1f1f1f;
-  border-color: rgba(155, 107, 255, 0.4);
+  background: var(--pf-bg-elev);
+  border-color: rgba(155, 107, 255, 0.5);
+  transform: translateY(-2px);
 }
 
 .lp-btn.big { padding: 18px 36px; font-size: 1rem; }

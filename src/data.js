@@ -1,10 +1,10 @@
 // =========================================================
-// Pumpcity · data
+// Boblets · data
 // 10 launch houses, task taxonomy, world events including
 // natural disasters, tier ladder, tuning constants.
 // =========================================================
 
-// HOUSES. Pumpcity is the city, every house is a pump.fun community.
+// HOUSES. Boblets is the world, every house is a pump.fun community.
 // Each entry stores the ticker exactly as the founder requested
 // (with $ prefix, original case), plus the longer formal name.
 // The map is a 5x2 grid with the central vault between the rows.
@@ -407,7 +407,7 @@ export const WORLD_EVENTS = [
 ];
 
 export const GENERIC_CHAT = [
-  "gm trenchlets",
+  "gm boblets",
   "vault hitting different today",
   "anyone seeing the pump?",
   "running it",
@@ -419,7 +419,7 @@ export const GENERIC_CHAT = [
   "town meeting soon",
 ];
 
-// PUMPCITY holder tiers. Higher tier unlocks more task types.
+// BOBLETS holder tiers. Higher tier unlocks more task types.
 // SHARK+ unlocks the raid action.
 export const TIERS = [
   { id: "shrimp", label: "SHRIMP", min: 0, color: "#9d6bff", glyph: "S" },
