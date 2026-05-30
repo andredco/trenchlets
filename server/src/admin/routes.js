@@ -207,7 +207,7 @@ const ADMIN_HTML = `<!doctype html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trenchlets · Admin</title>
+  <title>Boblets · Admin</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -256,7 +256,7 @@ const ADMIN_HTML = `<!doctype html>
   <header class="topbar">
     <div class="brand">
       <span class="brand-mark">T</span>
-      <div><strong>Trenchlets Admin</strong><small>v0.4 · DB inspector</small></div>
+      <div><strong>Boblets Admin</strong><small>v0.4 · DB inspector</small></div>
     </div>
     <div class="auth-area">
       <input type="password" id="tokenInput" placeholder="Admin token" />

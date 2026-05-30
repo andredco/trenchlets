@@ -7,7 +7,7 @@
 // proportional to their weight.
 //
 // Members who didn't claim that community OR who don't hold the
-// $TRENCHLETS token are excluded. Within members, weight = score
+// $BOBLETS token are excluded. Within members, weight = score
 // (no flat split — top contributor gets the most, by design).
 
 import { q, one } from "./db.js";

@@ -1,5 +1,5 @@
 // =========================================================
-// Trenchlets · world
+// Boblets · world
 // Procedural tile map for the town. Districts, plazas,
 // paths, vault, decorations, billboards, totems.
 // Ground is rendered as ONE pre-baked HD canvas (no tile grid).

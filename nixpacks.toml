@@ -1,5 +1,5 @@
 # =========================================================
-# Trenchlets · root-level Nixpacks config (web service)
+# Boblets · root-level Nixpacks config (web service)
 # =========================================================
 # When Railway deploys from the repo root, this file tells Nixpacks
 # how to build:

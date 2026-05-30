@@ -1,5 +1,5 @@
 // =========================================================
-// Trenchlets · Minigame Launcher (v3 — per-game cooldown + polish)
+// Boblets · Minigame Launcher (v3 — per-game cooldown + polish)
 // =========================================================
 
 import { mountRhythmRush } from "./rhythm-rush.js";
@@ -26,7 +26,7 @@ const TOTAL_STAGES = 3;
 // Per-(game, difficulty) cooldown. Map keyed JSON in localStorage so each
 // minigame's cooldown is independent — finishing Rhythm Rush doesn't lock
 // Memory Mint, etc.
-const COOLDOWN_KEY = "trenchlets-minigame-cooldowns-v2";
+const COOLDOWN_KEY = "boblets-minigame-cooldowns-v2";
 
 let activeGame = null;
 let overlayEl = null;

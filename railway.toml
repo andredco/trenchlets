@@ -1,5 +1,5 @@
 # =========================================================
-# Trenchlets · root-level Railway config (web service)
+# Boblets · root-level Railway config (web service)
 # =========================================================
 # This is the ONE config Railway needs. When you "Deploy from
 # GitHub" with the repo root, this file tells Railway exactly how

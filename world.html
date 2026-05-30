@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#02080a" />
-    <meta name="description" content="Trenchlets · live pixel-art reward world for pump.fun communities." />
-    <title>Trenchlets · play</title>
+    <meta name="theme-color" content="#0e0a1f" />
+    <meta name="description" content="Boblets · live pixel-art reward world for pump.fun communities." />
+    <title>Boblets · play</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="icon" type="image/png" href="/src/assets/trenchlet-logo.png" />
@@ -18,13 +18,13 @@
   <body class="play-mode">
     <div id="app">
       <header class="topbar slim">
-        <a class="brand" href="/" aria-label="Trenchlets landing">
+        <a class="brand" href="/" aria-label="Boblets landing">
           <span class="brand-mark" aria-hidden="true">
-            <img class="brand-mark-img" src="/src/assets/trenchlet-logo.png" alt="Trenchlets" />
+            <img class="brand-mark-img" src="/src/assets/trenchlet-logo.png" alt="Boblets" />
           </span>
           <span class="brand-text">
-            <strong>TRENCHLETS</strong>
-            <small>v0.4 · live world</small>
+            <strong>BOBLETS</strong>
+            <small>v1.0 · live world</small>
           </span>
         </a>
 
@@ -33,7 +33,7 @@
             <span class="name-tag-dot" aria-hidden="true"></span>
             <span id="nameTagLabel">guest</span>
           </button>
-          <button id="helpButton" class="mini-button" type="button" title="How Trenchlets works">
+          <button id="helpButton" class="mini-button" type="button" title="How Boblets works">
             ? HELP
           </button>
           <button id="dashboardButton" class="mini-button" type="button" title="Tasks & houses">
@@ -64,7 +64,7 @@
                 id="gameCanvas"
                 width="720"
                 height="405"
-                aria-label="Trenchlets live world"
+                aria-label="Boblets live world"
                 tabindex="0"
               ></canvas>
 
@@ -76,11 +76,11 @@
                     <small id="identityMeta">Press START to enter</small>
                   </div>
                 </div>
-                <button class="hud-card tier-card" id="tierCard" type="button" title="Stake more TRENCHLETS">
+                <button class="hud-card tier-card" id="tierCard" type="button" title="Stake more BOBLETS">
                   <span class="tier-badge" id="tierBadge">S</span>
                   <div class="hud-card-text">
                     <strong id="tierLabel">SHRIMP</strong>
-                    <small id="tierBalance">0 TRENCHLETS</small>
+                    <small id="tierBalance">0 BOBLETS</small>
                   </div>
                 </button>
               </div>
@@ -152,7 +152,7 @@
                   <div class="splash-glyph" aria-hidden="true">
                     <span></span><span></span><span></span><span></span>
                   </div>
-                  <h1>TRENCHLETS</h1>
+                  <h1>BOBLETS</h1>
                   <p class="splash-tag">A live reward world for pump.fun communities</p>
 
                   <!-- Loading bar (shown while the world bakes) -->
@@ -172,7 +172,7 @@
                     </p>
                     <div class="splash-name">
                       <label for="splashNameInput">Display name</label>
-                      <input id="splashNameInput" type="text" maxlength="24" autocomplete="off" spellcheck="false" placeholder="trenchlet" />
+                      <input id="splashNameInput" type="text" maxlength="24" autocomplete="off" spellcheck="false" placeholder="boblet" />
                     </div>
                     <div class="splash-buttons">
                       <button id="enterButton" class="splash-button primary" type="button">
@@ -208,8 +208,8 @@
       <div class="modal-shade" data-close></div>
       <div class="modal-frame wide" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
         <header class="modal-head">
-          <small>HOW TRENCHLETS WORKS</small>
-          <h2 id="helpTitle">Welcome to Trenchlets</h2>
+          <small>HOW BOBLETS WORKS</small>
+          <h2 id="helpTitle">Welcome to Boblets</h2>
           <button class="modal-close" type="button" data-close aria-label="Close">×</button>
         </header>
         <div class="help-grid">
@@ -217,7 +217,7 @@
             <span class="help-num">01</span>
             <h3>The City &amp; the Houses</h3>
             <p>
-              Trenchlets is the city. <b>10 launch houses</b> live inside it, each
+              Boblets is the city. <b>10 launch houses</b> live inside it, each
               representing a pump.fun community. Walk to a totem and press
               <span class="key-pill k">E</span> to claim a house (you need to hold
               that house's token in your wallet).
@@ -228,7 +228,7 @@
             <h3>The Central Vault</h3>
             <p>
               Every token bought from a house flows into the central vault.
-              <b>TRENCHLETS holders</b> at higher tiers unlock more powerful tasks
+              <b>BOBLETS holders</b> at higher tiers unlock more powerful tasks
               that pull bigger buybacks into the vault.
             </p>
           </article>
@@ -238,7 +238,7 @@
             <p>
               Each task resolves into three splits: a slice fills the <b>house
               vault</b>, a slice routes to your <b>personal share</b>, and a slice
-              funds the <b>Trenchlets protocol treasury</b>. Cards show the live
+              funds the <b>Boblets protocol treasury</b>. Cards show the live
               split.
             </p>
           </article>
@@ -283,7 +283,7 @@
         </div>
         <div class="modal-actions">
           <button class="splash-button primary" type="button" data-close>
-            ENTER TRENCHLETS
+            ENTER BOBLETS
           </button>
         </div>
       </div>
@@ -334,7 +334,7 @@
       <div class="modal-frame xl" role="dialog" aria-modal="true" aria-labelledby="dashboardTitle">
         <header class="modal-head">
           <small>LIVE DASHBOARD</small>
-          <h2 id="dashboardTitle">Trenchlets World</h2>
+          <h2 id="dashboardTitle">Boblets World</h2>
           <button class="modal-close" type="button" data-close aria-label="Close">×</button>
         </header>
 
@@ -387,7 +387,7 @@
           <button class="modal-close" type="button" data-close aria-label="Close">×</button>
         </header>
         <p class="modal-copy">
-          Your tier is read live from your connected wallet. Hold more $TRENCHLETS to climb the ladder and unlock bigger contribution multipliers.
+          Your tier is read live from your connected wallet. Hold more $BOBLETS to climb the ladder and unlock bigger contribution multipliers.
         </p>
         <div class="tier-ladder" id="tierLadder"></div>
         <p class="modal-foot">No staking. Just hold the token. Your tier updates within 30 seconds of a balance change.</p>

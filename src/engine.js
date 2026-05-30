@@ -1489,7 +1489,7 @@ function drawArrow(ctx, x, y, color) {
 function drawNameTag(entity, footX, baseY) {
   let name = "";
   if (entity === state.player) {
-    name = (typeof localStorage !== "undefined" && localStorage.getItem("trenchlets-display-name")) || entity.name || "";
+    name = (typeof localStorage !== "undefined" && localStorage.getItem("boblets-display-name")) || entity.name || "";
   } else {
     name = entity.displayName || entity.name || "";
   }

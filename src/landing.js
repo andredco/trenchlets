@@ -1,7 +1,7 @@
 // =========================================================
-// Trenchlets · landing + docs
+// Boblets · landing + docs
 // =========================================================
-// Fetches /api/config from the server so values like TRENCHLETS_MINT
+// Fetches /api/config from the server so values like BOBLETS_MINT
 // and the vault address come straight from Railway env vars. Set them
 // ONCE in Railway, no code changes needed at launch.
 
@@ -54,7 +54,7 @@ loadConfig().then((cfg) => {
 
   // ---- Token status banner ----
   // Shows "Not live yet" until the server returns a real mint address
-  // (which happens the moment TRENCHLETS_MINT is set in Railway env).
+  // (which happens the moment BOBLETS_MINT is set in Railway env).
   const tokenStatusBox = document.querySelector("#tokenStatus");
   const tokenStatusValue = document.querySelector("#tokenStatusValue");
   if (tokenStatusBox && tokenStatusValue) {

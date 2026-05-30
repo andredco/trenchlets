@@ -1,5 +1,5 @@
 // =========================================================
-// Trenchlets · epoch anchor (runtime mutable)
+// Boblets · epoch anchor (runtime mutable)
 // =========================================================
 // The anchor is the UTC ms at which epoch 0 starts. Every 3 hours
 // after the anchor a new epoch begins. The anchor lives in the

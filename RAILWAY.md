@@ -1,4 +1,4 @@
-# Trenchlets · Railway deployment
+# Boblets · Railway deployment
 
 Two Railway services, one shared Postgres. Read top to bottom.
 
@@ -36,7 +36,7 @@ Railway → New → GitHub Repo → pick `andredco/trenchlets`.
 | `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` |
 | `RPC_URL` | `https://mainnet.helius-rpc.com/?api-key=...` |
 | `VAULT_ADDRESS` | `CHAcAiFhnfrKwZ22DmsTu2WVeMaym466n3hWPBWPFGNZ` |
-| `TRENCHLETS_MINT` | leave empty until token launches |
+| `BOBLETS_MINT` | leave empty until token launches |
 | `TRACK_MINTS` | leave empty until tokens launch |
 | `IP_SALT` | random hex string (e.g. `openssl rand -hex 32`) |
 | `ADMIN_TOKEN` | random string, this is what unlocks `/admin` |
@@ -107,7 +107,7 @@ applied), so re-deploys are safe.
   should always pick up the Node process. If you see this again,
   check the Deployments tab → latest build → did `npm install`
   show server deps installing? Did it print
-  `Trenchlets server listening on :PORT`? If not, the build picked
+  `Boblets server listening on :PORT`? If not, the build picked
   the wrong directory.
 - **Multiplayer doesn't work, players don't see each other**: open
   DevTools Network tab, refresh `/world`, look for a WebSocket

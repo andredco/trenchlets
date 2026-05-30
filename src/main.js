@@ -53,8 +53,8 @@ const mp = getMultiplayer();
 
 const $ = (sel) => document.querySelector(sel);
 
-const STORAGE_KEY = "trenchlets-state-v1";
-const PLAYER_KEY = "trenchlets-player-id";
+const STORAGE_KEY = "boblets-state-v1";
+const PLAYER_KEY = "boblets-player-id";
 
 // =================== DOM ===================
 
@@ -595,7 +595,7 @@ function triggerRaid(targetHouseId) {
     return;
   }
   if (tierIndex(state.player.tier.id) < RAID.tierMin) {
-    pushNotification({ type: "event", title: `SHARK+ NEEDED`, text: `Stake more TRENCHLETS to raid.` });
+    pushNotification({ type: "event", title: `SHARK+ NEEDED`, text: `Stake more BOBLETS to raid.` });
     return;
   }
   const cooldownLeft = lastRaidAt + RAID.cooldownMs - Date.now();
@@ -676,7 +676,7 @@ function contributeAtBoard(communityId, taskId) {
   // Players need a session — either wallet-signed-in OR guest. The
   // server still records the contribution under the player's ID
   // (hardware id for guests) so cooldowns + leaderboards work, but
-  // guests have no airdrop weight (no $TRENCHLETS holdings).
+  // guests have no airdrop weight (no $BOBLETS holdings).
   if (!state.player.wallet && !state.player.guest) {
     pushNotification({
       type: "event",
@@ -765,7 +765,7 @@ function inspectVault() {
     pushNotification({
       type: "event",
       title: "CLAIM LOCKED",
-      text: `Trenchlets enforces a 3h first-play lock. Unlocks in ${formatLong(remaining)}.`,
+      text: `Boblets enforces a 3h first-play lock. Unlocks in ${formatLong(remaining)}.`,
     });
     emitSparkle(state.player.x, state.player.y - 10, "#ff4a6e", 12);
     SFX.click();
@@ -805,7 +805,7 @@ function tossCoin() {
   pushNotification({
     type: "event",
     title: "COIN TOSSED",
-    text: "Trenchlets thanks you. Tiny luck buff applied.",
+    text: "Boblets thanks you. Tiny luck buff applied.",
   });
   appendChat({ who: "system", text: "you tossed a coin in the fountain.", cls: "system" });
 }
@@ -968,7 +968,7 @@ function updateTierHud() {
   tierLabel.textContent = tier.label;
   tierBadge.textContent = tier.glyph;
   tierBadge.style.background = tier.color;
-  tierBalance.textContent = `${formatHuman(state.player.pumptownBalance)} TRENCHLETS`;
+  tierBalance.textContent = `${formatHuman(state.player.pumptownBalance)} BOBLETS`;
 }
 
 function updateDomFull() {
@@ -1273,7 +1273,7 @@ async function connectWallet() {
     pushNotification({
       type: "event",
       title: "SERVER UNREACHABLE",
-      text: "Couldn't reach the Trenchlets server. Try again in a moment.",
+      text: "Couldn't reach the Boblets server. Try again in a moment.",
     });
     return false;
   }
@@ -1437,7 +1437,7 @@ function closeSplash() {
   SFX.splash();
   pushNotification({
     type: "event",
-    title: "WELCOME TO TRENCHLETS",
+    title: "WELCOME TO BOBLETS",
     text: "Walk to a totem and press E to join a house.",
   });
   canvas.focus();
@@ -1571,7 +1571,7 @@ stakeModal.querySelectorAll("[data-close]").forEach((node) => {
   node.addEventListener("click", closeStakeModal);
 });
 
-// Staking is gone — tier is read live from the wallet's $TRENCHLETS balance.
+// Staking is gone — tier is read live from the wallet's $BOBLETS balance.
 // Old [data-stake] buttons were removed from the markup; nothing to wire here.
 
 window.addEventListener("keydown", (event) => {
@@ -1603,7 +1603,7 @@ function renderTierLadder() {
       <span class="ladder-glyph" style="background:${tier.color}">${tier.glyph}</span>
       <div class="ladder-text">
         <strong>${tier.label}</strong>
-        <small>${tier.min === 0 ? "No TRENCHLETS" : `${formatHuman(tier.min)} TRENCHLETS`}</small>
+        <small>${tier.min === 0 ? "No BOBLETS" : `${formatHuman(tier.min)} BOBLETS`}</small>
       </div>
       <span class="ladder-state">${
         i === currentIdx ? "YOU" : i < currentIdx ? "DONE" : "LOCKED"

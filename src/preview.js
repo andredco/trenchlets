@@ -1,5 +1,5 @@
 // =========================================================
-// Trenchlets · Live World Preview
+// Boblets · Live World Preview
 // =========================================================
 // Mounts a non-interactive snapshot of the actual world onto
 // a canvas. Reuses the real engine's world generation, sprite

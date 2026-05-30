@@ -1,5 +1,5 @@
 // =========================================================
-// Trenchlets · epoch settlement
+// Boblets · epoch settlement
 // =========================================================
 // Reads the just-closed epoch from Postgres, computes:
 //   1. Vault USD value (sum of token holdings × live price).
@@ -18,7 +18,7 @@
 //   npm run settle -- --execute
 //   npm run settle -- --epoch 12 --execute
 //
-// Distribution token: $TRENCHLETS by default (TRENCHLETS_MINT env var).
+// Distribution token: $BOBLETS by default (BOBLETS_MINT env var).
 // Pass --token <mint> to drain a different one (e.g. SOL for testing).
 
 import { Connection, Keypair, PublicKey, Transaction, SystemProgram, sendAndConfirmTransaction } from "@solana/web3.js";
@@ -87,7 +87,7 @@ async function main() {
   console.log(`Drain (15%): $${drainUsd.toFixed(2)}`);
 
   // 2. Compute per-wallet weight from tier_cache for every wallet that played
-  //    or held in this epoch. Floor at 50K $TRENCHLETS to qualify.
+  //    or held in this epoch. Floor at 50K $BOBLETS to qualify.
   const holders = await query(
     `SELECT t.wallet, t.balance, t.tier_id
      FROM tier_cache t
@@ -171,9 +171,9 @@ async function main() {
     process.exit(1);
   }
 
-  const tokenMint = TOKEN_OVERRIDE || process.env.TRENCHLETS_MINT;
+  const tokenMint = TOKEN_OVERRIDE || process.env.BOBLETS_MINT;
   if (!tokenMint) {
-    console.error("\nNo token mint configured (TRENCHLETS_MINT env var or --token flag).");
+    console.error("\nNo token mint configured (BOBLETS_MINT env var or --token flag).");
     process.exit(1);
   }
 

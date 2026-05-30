@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#050210" />
-    <meta name="description" content="Trenchlets documentation — full game mechanics, minigames, world events, tier ladder, vault and epoch math." />
-    <title>Trenchlets · Docs</title>
+    <meta name="theme-color" content="#0e0a1f" />
+    <meta name="description" content="Boblets documentation — full game mechanics, minigames, world events, tier ladder, vault and epoch math." />
+    <title>Boblets · Docs</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="icon" type="image/png" href="/src/assets/trenchlet-logo.png" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/src/styles.css" />
@@ -20,18 +20,18 @@
 
     <!-- TOPBAR -->
     <header class="lp-topbar">
-      <a class="lp-brand" href="/" aria-label="Trenchlets home">
-        <span class="lp-brand-mark"><img src="/src/assets/trenchlet-logo.png" alt="Trenchlets" /></span>
+      <a class="lp-brand" href="/" aria-label="Boblets home">
+        <span class="lp-brand-mark"><img src="/src/assets/trenchlet-logo.png" alt="Boblets" /></span>
         <span class="lp-brand-text">
-          <strong>Trenchlets</strong>
-          <small>v0.4 · docs</small>
+          <strong>Boblets</strong>
+          <small>v1.0 · docs</small>
         </span>
       </a>
       <nav class="lp-nav">
         <a href="/">Home</a>
         <a href="/docs.html">Docs</a>
         <a href="/world">Play</a>
-        <a href="https://x.com/trenchlets_fun" target="_blank" rel="noopener" class="lp-nav-icon" aria-label="Trenchlets on X">
+        <a href="https://x.com/trenchlets_fun" target="_blank" rel="noopener" class="lp-nav-icon" aria-label="Boblets on X">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         </a>
       </nav>
@@ -78,7 +78,7 @@
 
         <header class="docs-hero">
           <span class="lp-eyebrow">DOCUMENTATION</span>
-          <h1>How to play Trenchlets</h1>
+          <h1>How to play Boblets</h1>
           <p>Everything you need to know — from your first walk in the world to optimizing yield strategy across multiple houses.</p>
         </header>
 
@@ -86,13 +86,13 @@
         <section id="intro">
           <h2>Intro</h2>
           <p>
-            Trenchlets is a live pixel-art world where 10 pump.fun communities ("houses") compete for vault yield.
+            Boblets is a live pixel-art world where 10 pump.fun communities ("houses") compete for vault yield.
             The whole point: <strong>real coordination &gt; spam</strong>. Skill-based minigames replace farming bots.
             Every contribution stacks toward your house's share of a vault that distributes every 3 hours.
           </p>
           <div class="docs-callout">
-            <strong>TL;DR</strong> — Pick a house. Walk to its billboard. Press E. Play 10 stages of a minigame.
-            Your score becomes a contribution to your house's yield. Vault distributes every 3h, 50% goes to qualifying $TRENCHLETS holders pro-rata.
+            <strong>TL;DR</strong> — Pick a house. Walk to its billboard. Press E. Play 3 stages of a minigame.
+            Your score becomes a contribution to your house's yield. Vault distributes every 3h, 50% goes to qualifying $BOBLETS holders pro-rata.
           </div>
         </section>
 
@@ -104,7 +104,7 @@
             <li><strong>Walk</strong> using <kbd>W A S D</kbd> or arrows. Touch joystick on mobile.</li>
             <li><strong>Find a totem</strong> in any of the 10 districts. Press <kbd>E</kbd> to inspect or claim a house.</li>
             <li><strong>Walk to your billboard</strong> (the big poster next to the totem). Press <kbd>E</kbd>.</li>
-            <li><strong>Pick a game and difficulty.</strong> Play 10 stages. Your final % becomes your house contribution.</li>
+            <li><strong>Pick a game and difficulty.</strong> Play 3 stages. Your final score becomes your house contribution.</li>
             <li><strong>Wait the cooldown</strong> (1-2 hours), then go again. Or visit other houses to coordinate, watch events, etc.</li>
           </ol>
         </section>
@@ -166,8 +166,9 @@
             </tbody>
           </table>
           <div class="docs-callout">
-            <strong>Math</strong> — A perfect 10/10 stages run gives <code>(stages × 100 / 1000) × difficulty% × 10 stages</code>.
-            Hard perfect = <strong>~6% per stage × 10 = 60% house yield</strong> in one session.
+            <strong>Math</strong> — Your contribution = <code>avg stage score (0-1) × difficulty multiplier</code>.
+            Easy caps at <strong>+2 yield</strong>, medium <strong>+4</strong>, hard <strong>+6</strong> per session.
+            Yield is a weight, not a fraction of the vault — the settler normalizes every house's total at epoch close.
           </div>
         </section>
 
@@ -187,8 +188,8 @@
         <section id="vault">
           <h2>The vault</h2>
           <p>
-            The central vault is the developer wallet on Solana that the $TRENCHLETS token launches through.
-            Token holdings (the $TRENCHLETS token plus all 10 house tokens) live there.
+            The central vault is the developer wallet on Solana that the $BOBLETS token launches through.
+            Token holdings (the $BOBLETS token plus all 10 house tokens) live there.
           </p>
           <p>
             The frontend cannot withdraw — only read. All distributions happen via on-chain settlement.
@@ -209,7 +210,7 @@
           <ul class="docs-bullets">
             <li>Epoch length: <strong>3 hours</strong></li>
             <li>Distribution: <strong>50% of vault USD</strong></li>
-            <li>Qualifying floor: <strong>50,000 $TRENCHLETS held</strong></li>
+            <li>Qualifying floor: <strong>50,000 $BOBLETS held</strong></li>
             <li>Per-wallet split: <strong>pro-rata × tier multiplier</strong></li>
           </ul>
         </section>
@@ -234,10 +235,10 @@
           <h2>Airdrop math</h2>
           <p>At each epoch close:</p>
           <pre class="docs-code">distribution = vault_usd × 0.50
-qualifying_holders = wallets with ≥ 50K $TRENCHLETS
+qualifying_holders = wallets with ≥ 50K $BOBLETS
 weight = balance × tier_multiplier
 share = (your_weight / total_weight) × distribution</pre>
-          <p>House yield doesn't change the airdrop directly — it changes which houses contribute most to the next epoch's vault. The vault grows, and your $TRENCHLETS holding gets you a slice every 3 hours.</p>
+          <p>House yield doesn't change the airdrop directly — it changes which houses contribute most to the next epoch's vault. The vault grows, and your $BOBLETS holding gets you a slice every 3 hours.</p>
         </section>
 
         <!-- EVENTS -->
@@ -295,7 +296,7 @@ share = (your_weight / total_weight) × distribution</pre>
         <section id="multiplayer">
           <h2>Multiplayer</h2>
           <p>
-            Trenchlets is multiplayer-first. The current build uses <code>BroadcastChannel</code> for cross-tab presence (open two tabs and they see each other).
+            Boblets is multiplayer-first. The current build uses <code>BroadcastChannel</code> for cross-tab presence (open two tabs and they see each other).
             Production routes everything through a WebSocket server so all players in the world see each other walking, contributing, raiding, and chatting in real time.
           </p>
           <p>
@@ -320,7 +321,7 @@ share = (your_weight / total_weight) × distribution</pre>
           <details><summary>Do I need a wallet to play?</summary><p>No. Guest mode lets you play without a wallet — your contributions just go to a random eligible house. Connect Phantom to claim a specific house and qualify for airdrop tiers.</p></details>
           <details><summary>What if I lose connection mid-minigame?</summary><p>The session is rejected — score is 0. The cooldown timer doesn't start until a session completes successfully.</p></details>
           <details><summary>Can multiple people play for the same house?</summary><p>Yes — that's the point. Every member's contribution stacks on the same house yield. Coordinate, time your plays around events, optimize together.</p></details>
-          <details><summary>How do I climb tiers?</summary><p>Hold more $TRENCHLETS. Tiers are read live from your wallet balance. Higher tier = bigger contribution multiplier and bigger airdrop weight.</p></details>
+          <details><summary>How do I climb tiers?</summary><p>Hold more $BOBLETS. Tiers are read live from your wallet balance. Higher tier = bigger contribution multiplier and bigger airdrop weight.</p></details>
           <details><summary>What happens if my house has a fire?</summary><p>Run to the burning billboard and press <kbd>E</kbd> to extinguish. Multiple players speeds it up. Until extinguished, your house only earns 30% of contributions.</p></details>
         </section>
 
@@ -328,7 +329,7 @@ share = (your_weight / total_weight) × distribution</pre>
     </div>
 
     <footer class="lp-footer">
-      <span>TRENCHLETS · built for pump.fun communities · v0.4</span>
+      <span>BOBLETS · built for pump.fun communities · v0.4</span>
       <nav>
         <a href="/">Home</a>
         <span>·</span>

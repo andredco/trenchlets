@@ -1,5 +1,5 @@
 // =========================================================
-// Trenchlets Settler — entry point
+// Boblets Settler — entry point
 // =========================================================
 // Two run modes:
 //   --once          run a single epoch then exit (for cron / manual)
@@ -13,7 +13,7 @@ import { EPOCH_LENGTH_MS, EPOCH_ANCHOR_MS, RUN_ONCE, DRY_RUN } from "./config.js
 import { pool } from "./db.js";
 
 async function main() {
-  console.log(`Trenchlets settler starting (DRY_RUN=${DRY_RUN}, RUN_ONCE=${RUN_ONCE})`);
+  console.log(`Boblets settler starting (DRY_RUN=${DRY_RUN}, RUN_ONCE=${RUN_ONCE})`);
 
   if (RUN_ONCE) {
     try { await runEpoch(); }

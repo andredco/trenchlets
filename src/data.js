@@ -286,7 +286,7 @@ export const TASKS = [
     id: "treasury-tribute",
     title: "Treasury Tribute",
     category: "protocol",
-    short: "Tax raid that fuels the Trenchlets treasury for the next pool.",
+    short: "Tax raid that fuels the Boblets treasury for the next pool.",
     durationMs: 6 * 60 * 60 * 1000,
     cooldownMs: 40 * 60 * 1000,
     minCitizens: 100,
@@ -319,7 +319,7 @@ export const TASK_CATEGORIES = {
   protocol: {
     label: "PROTOCOL",
     color: "#ffd84a",
-    blurb: "Trenchlets treasury fuels future pool expansions.",
+    blurb: "Boblets treasury fuels future pool expansions.",
   },
   raid: {
     label: "RAID",
@@ -360,7 +360,7 @@ export const WORLD_EVENTS = [
   {
     id: "whale-visit",
     title: "WHALE VISIT",
-    desc: "A whale crosses Trenchlets. Walk under it for a vault tip.",
+    desc: "A whale crosses Boblets. Walk under it for a vault tip.",
     durationMs: 24000,
     color: "#4ff7ff",
     weight: 2,
@@ -449,7 +449,7 @@ export const CLAIM_LOCK_MS = 3 * 60 * 60 * 1000;
 // =========================================================
 // VAULT + EPOCH (real economy parameters, no mocks)
 // =========================================================
-// VAULT_CONFIG.address is the developer wallet that the $TRENCHLETS
+// VAULT_CONFIG.address is the developer wallet that the $BOBLETS
 // token launches through. Until the on-chain reader is wired (see
 // FEEDS.solana below), vault USD displays as "live feed pending"
 // rather than synthetic numbers. Users still play and accumulate
@@ -461,7 +461,7 @@ export const VAULT_CONFIG = {
   // Solana RPC endpoint used to read SOL + token balances. Plug in
   // mainnet-beta or a private RPC at deploy.
   rpcUrl: "",
-  // The $TRENCHLETS token mint (launched on pump.fun). Empty until launch.
+  // The $BOBLETS token mint (launched on pump.fun). Empty until launch.
   trenchletsMint: "",
 };
 
@@ -470,7 +470,7 @@ export const EPOCH_CONFIG = {
   lengthMs: 3 * 60 * 60 * 1000,
   // % of vault USD that distributes to qualifying holders each epoch.
   drainPct: 0.50,
-  // Minimum $TRENCHLETS held to qualify for airdrop weight.
+  // Minimum $BOBLETS held to qualify for airdrop weight.
   qualifyFloor: 50_000,
   // Anchor epoch start so all clients agree on epoch boundaries
   // without needing the server. Epoch 0 starts at this UTC ms.

@@ -1,5 +1,5 @@
 // =========================================================
-// Trenchlets · Solana wallet adapters (official packages)
+// Boblets · Solana wallet adapters (official packages)
 // =========================================================
 // Uses @solana/wallet-adapter-* directly. Each adapter speaks the
 // same Adapter interface defined in @solana/wallet-adapter-base, so

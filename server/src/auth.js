@@ -23,7 +23,7 @@ const sessions = new Map(); // token -> { wallet, expiresAt, playerId }
 
 export function newNonce(wallet) {
   const nonce = crypto.randomBytes(16).toString("hex");
-  const message = `Sign in to Trenchlets\n\nWallet: ${wallet}\nNonce: ${nonce}\nIssued: ${new Date().toISOString()}`;
+  const message = `Sign in to Boblets\n\nWallet: ${wallet}\nNonce: ${nonce}\nIssued: ${new Date().toISOString()}`;
   nonces.set(wallet, { nonce, message, expiresAt: Date.now() + NONCE_TTL_MS });
   return { nonce, message };
 }

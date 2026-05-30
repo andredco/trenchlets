@@ -2,7 +2,7 @@
 // Price feed via DexScreener public API
 // =========================================================
 // Polls DexScreener every 30 seconds for the 10 launch tokens
-// plus $TRENCHLETS once it launches. Caches result in memory and
+// plus $BOBLETS once it launches. Caches result in memory and
 // broadcasts updates to all WS clients.
 //
 // Endpoint: https://api.dexscreener.com/latest/dex/tokens/{mints}

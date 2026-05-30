@@ -1,5 +1,5 @@
 // =========================================================
-// Trenchlets · multiplayer client
+// Boblets · multiplayer client
 // =========================================================
 // Single WebSocket connection to /ws on the same origin as the
 // page (so trenchlets.fun serves both pages and game). Handles:
@@ -10,9 +10,9 @@
 //   • Live price + house standings updates
 
 const WS_URL = computeWsUrl();
-const HARDWARE_KEY = "trenchlets-hardware-id";
-const NAME_KEY = "trenchlets-display-name";
-const SESSION_KEY = "trenchlets-session";
+const HARDWARE_KEY = "boblets-hardware-id";
+const NAME_KEY = "boblets-display-name";
+const SESSION_KEY = "boblets-session";
 
 const handlers = {};
 let ws = null;

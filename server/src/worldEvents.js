@@ -15,7 +15,7 @@ const WORLD_EVENTS = [
   { id: "solar-eclipse",  title: "SOLAR ECLIPSE",  desc: "Twilight blankets the city. Task progress is doubled.",                    durationMs: 32000, color: "#9d6bff", weight: 3, kind: "boon" },
   { id: "raid-hour",      title: "RAID HOUR",      desc: "All citizens march on the vault. Speed up. Contributions hit hard.",       durationMs: 36000, color: "#1ec77d", weight: 3, kind: "boon" },
   { id: "spotlight",      title: "HOUSE SPOTLIGHT",desc: "A surprise house is haloed. Contributions for them count 3x.",             durationMs: 30000, color: "#5cff9a", weight: 2, kind: "boon", picksHouse: true },
-  { id: "whale-visit",    title: "WHALE VISIT",    desc: "A whale crosses Trenchlets. Walk under it for a vault tip.",               durationMs: 24000, color: "#4ff7ff", weight: 2, kind: "boon" },
+  { id: "whale-visit",    title: "WHALE VISIT",    desc: "A whale crosses Boblets. Walk under it for a vault tip.",               durationMs: 24000, color: "#4ff7ff", weight: 2, kind: "boon" },
   { id: "house-fire",     title: "HOUSE FIRE",     desc: "A house is burning. Run there and press E to bucket-brigade.",             durationMs: 42000, color: "#ff5238", weight: 3, kind: "disaster", picksHouse: true },
   { id: "earthquake",     title: "EARTHQUAKE",     desc: "Tectonic shake. Vault accrual halts. NPCs panic-walk.",                    durationMs: 26000, color: "#b1683a", weight: 2, kind: "disaster" },
   { id: "lightning-storm",title: "LIGHTNING STORM",desc: "Bolts strike random houses. Their task progress freezes.",                 durationMs: 30000, color: "#9d6bff", weight: 2, kind: "disaster" },

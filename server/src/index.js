@@ -1,5 +1,5 @@
 // =========================================================
-// Trenchlets · server entry
+// Boblets · server entry
 // =========================================================
 // Single Railway service. Serves the Vite-built frontend
 // (../dist) at /, REST auth + leaderboard at /api/*, and the
@@ -40,13 +40,13 @@ app.get("/health", (req, res) => res.json({ ok: true, epoch: currentEpochIdx() }
 
 // ---- PUBLIC CONFIG ----
 // Single source of truth for "what is the current state of the world" that
-// the frontend can poll. Lets you set TRENCHLETS_MINT (and other launch
+// the frontend can poll. Lets you set BOBLETS_MINT (and other launch
 // params) ONCE in Railway env vars and have every page reflect it without
 // any code changes.
 app.get("/api/config", (req, res) => {
   res.set("Cache-Control", "public, max-age=30"); // brief cache, fast updates
   res.json({
-    trenchletsMint: process.env.TRENCHLETS_MINT || "",
+    trenchletsMint: process.env.BOBLETS_MINT || "",
     vaultAddress: process.env.VAULT_ADDRESS || "CHAcAiFhnfrKwZ22DmsTu2WVeMaym466n3hWPBWPFGNZ",
     epochLengthMs: EPOCH_LENGTH_MS,
     epochAnchorMs: getEpochAnchor(),
@@ -230,7 +230,7 @@ app.get("*", (req, res, next) => {
 const server = http.createServer(app);
 attachWS(server);
 server.listen(PORT, async () => {
-  console.log(`Trenchlets server listening on :${PORT}`);
+  console.log(`Boblets server listening on :${PORT}`);
   console.log(`Static frontend: ${DIST_DIR}`);
   try { await loadEpochAnchor(); }
   catch (err) { console.warn("loadEpochAnchor failed:", err.message); }

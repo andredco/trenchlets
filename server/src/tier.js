@@ -1,7 +1,7 @@
 // =========================================================
 // Wallet → Tier resolver via Solana RPC
 // =========================================================
-// Reads the connected wallet's $TRENCHLETS token balance and
+// Reads the connected wallet's $BOBLETS token balance and
 // maps it to a tier. Cached server-side (table tier_cache) for
 // 30s so we don't hammer Helius.
 
@@ -56,7 +56,7 @@ export async function getTier(wallet) {
 }
 
 async function fetchBalance(wallet) {
-  const mint = process.env.TRENCHLETS_MINT;
+  const mint = process.env.BOBLETS_MINT;
   if (!mint) {
     // Token not launched yet — everyone is SHRIMP.
     return 0;

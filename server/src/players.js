@@ -72,7 +72,7 @@ export function sanitizeName(raw) {
 
 function hashIp(ip) {
   if (!ip) return null;
-  const salt = process.env.IP_SALT || "trenchlets-default-salt-rotate-me";
+  const salt = process.env.IP_SALT || "boblets-default-salt-rotate-me";
   return crypto.createHash("sha256").update(salt + ip).digest("hex");
 }
 

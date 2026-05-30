@@ -1,31 +1,33 @@
 /* =========================================================
-   Trenchlets · Landing + Docs (pump.fun palette · v3)
+   Boblets · Landing + Docs (violet/cyan palette · v1)
    ========================================================= */
 
 :root {
-  /* pump.fun-ish palette */
-  --pf-bg:        #0a0a0a;
-  --pf-bg-elev:   #111111;
-  --pf-surface:   #161616;
-  --pf-line:      rgba(255, 255, 255, 0.06);
-  --pf-line-hi:   rgba(255, 255, 255, 0.14);
-  --pf-text:      #ffffff;
-  --pf-text-2:    #a3a3a3;
-  --pf-text-3:    #6b6b6b;
+  /* Boblets palette — electric violet + cyan on deep indigo */
+  --pf-bg:        #0e0a1f;
+  --pf-bg-elev:   #161029;
+  --pf-surface:   #1d1536;
+  --pf-line:      rgba(255, 255, 255, 0.07);
+  --pf-line-hi:   rgba(255, 255, 255, 0.16);
+  --pf-text:      #f4f1ff;
+  --pf-text-2:    #b3a9d4;
+  --pf-text-3:    #7d7299;
 
-  --pf-green:     #1eff8e;          /* primary */
-  --pf-green-2:   #00d672;
-  --pf-green-3:   #00935a;
-  --pf-green-mut: rgba(30, 255, 142, 0.12);
-  --pf-green-glow: rgba(30, 255, 142, 0.45);
+  /* "green" var names are kept for compatibility with existing rules,
+     but now hold the Boblets primary (electric violet). */
+  --pf-green:     #9b6bff;          /* primary */
+  --pf-green-2:   #7c43ff;
+  --pf-green-3:   #5a23d6;
+  --pf-green-mut: rgba(155, 107, 255, 0.14);
+  --pf-green-glow: rgba(155, 107, 255, 0.5);
 
-  --pf-yellow:    #ffd84a;
-  --pf-pink:      #ff4a6e;
-  --pf-purple:    #9d6bff;
+  --pf-yellow:    #ffc452;
+  --pf-pink:      #ff5fa2;
+  --pf-purple:    #36d9ff;          /* secondary accent — cyan */
 
-  --pf-radius-sm: 8px;
-  --pf-radius:    12px;
-  --pf-radius-lg: 18px;
+  --pf-radius-sm: 10px;
+  --pf-radius:    16px;
+  --pf-radius-lg: 24px;
 }
 
 @keyframes pf-fade-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
@@ -41,7 +43,7 @@
    ========================================================= */
 body.landing-mode {
   font-family:
-    "Inter",
+    "Plus Jakarta Sans",
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
@@ -106,7 +108,7 @@ code {
   place-items: center;
   background: var(--pf-green);
   border-radius: var(--pf-radius-sm);
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 0.78rem;
   font-weight: 800;
   color: #000;
@@ -116,9 +118,10 @@ code {
 
 .lp-brand-text strong {
   display: block;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: "Baloo 2", "Plus Jakarta Sans", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
   color: var(--pf-text);
 }
 
@@ -199,8 +202,8 @@ code {
   inset: -200px -200px auto -200px;
   height: 700px;
   background:
-    radial-gradient(ellipse 50% 40% at 50% 0%, rgba(30, 255, 142, 0.25), transparent 70%),
-    radial-gradient(ellipse 30% 40% at 25% 60%, rgba(30, 255, 142, 0.08), transparent 60%);
+    radial-gradient(ellipse 50% 40% at 50% 0%, rgba(155, 107, 255, 0.25), transparent 70%),
+    radial-gradient(ellipse 30% 40% at 25% 60%, rgba(155, 107, 255, 0.08), transparent 60%);
   pointer-events: none;
   z-index: 0;
   animation: pf-fade-in 0.9s ease both;
@@ -254,7 +257,7 @@ code {
   gap: 9px;
   padding: 7px 16px;
   background: var(--pf-green-mut);
-  border: 1px solid rgba(30, 255, 142, 0.28);
+  border: 1px solid rgba(155, 107, 255, 0.28);
   border-radius: 999px;
   font-size: 0.72rem;
   font-weight: 600;
@@ -275,7 +278,7 @@ code {
 
 /* Headline — proportioned for split layout */
 .lp-hero-title {
-  font-family: "Inter", sans-serif;
+  font-family: "Baloo 2", "Plus Jakarta Sans", sans-serif;
   font-size: clamp(2rem, 4.6vw, 3.6rem);
   font-weight: 900;
   line-height: 1.04;
@@ -322,7 +325,7 @@ code {
   gap: 8px;
   padding: 14px 28px;
   border-radius: var(--pf-radius-sm);
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 0.92rem;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -349,7 +352,7 @@ code {
 }
 .lp-btn.ghost:hover {
   background: #1f1f1f;
-  border-color: rgba(30, 255, 142, 0.4);
+  border-color: rgba(155, 107, 255, 0.4);
 }
 
 .lp-btn.big { padding: 18px 36px; font-size: 1rem; }
@@ -376,7 +379,7 @@ code {
   padding: 8px;
   box-shadow:
     0 30px 100px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(30, 255, 142, 0.08),
+    0 0 0 1px rgba(155, 107, 255, 0.08),
     inset 0 0 0 1px rgba(255, 255, 255, 0.02);
 }
 
@@ -482,7 +485,7 @@ code {
 
 .lp-hero-stats strong {
   display: block;
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 1.7rem;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -577,7 +580,7 @@ code {
 }
 
 .lp-section-head h2 {
-  font-family: "Inter", sans-serif;
+  font-family: "Baloo 2", "Plus Jakarta Sans", sans-serif;
   font-size: clamp(2rem, 5vw, 3.2rem);
   font-weight: 800;
   letter-spacing: -0.035em;
@@ -637,7 +640,7 @@ code {
 }
 
 .lp-how-card:hover {
-  border-color: rgba(30, 255, 142, 0.35);
+  border-color: rgba(155, 107, 255, 0.35);
   transform: translateY(-3px);
   background: #161616;
 }
@@ -654,7 +657,7 @@ code {
   padding: 3px 10px;
   background: var(--pf-green-mut);
   border-radius: 999px;
-  border: 1px solid rgba(30, 255, 142, 0.22);
+  border: 1px solid rgba(155, 107, 255, 0.22);
 }
 
 .lp-how-card h3 {
@@ -713,7 +716,7 @@ code {
 }
 
 .lp-house-ticker {
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 1rem;
   font-weight: 800;
   letter-spacing: -0.025em;
@@ -777,7 +780,7 @@ code {
 .lp-vault-card > * { position: relative; }
 
 .lp-vault-card h2 {
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 2rem;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -878,7 +881,7 @@ code {
 .lp-section.cta > * { position: relative; }
 
 .lp-section.cta h2 {
-  font-family: "Inter", sans-serif;
+  font-family: "Baloo 2", "Plus Jakarta Sans", sans-serif;
   font-size: clamp(2.2rem, 5vw, 3.4rem);
   font-weight: 900;
   letter-spacing: -0.035em;
@@ -978,7 +981,7 @@ code {
 }
 
 .docs-hero h1 {
-  font-family: "Inter", sans-serif;
+  font-family: "Baloo 2", "Plus Jakarta Sans", sans-serif;
   font-size: 2.6rem;
   font-weight: 900;
   letter-spacing: -0.035em;
@@ -1000,7 +1003,7 @@ code {
 }
 
 .docs-content h2 {
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 1.6rem;
   font-weight: 800;
   letter-spacing: -0.025em;
@@ -1200,16 +1203,16 @@ code {
   background: rgba(255, 216, 74, 0.04);
 }
 .lp-token-status[data-state="pending"] code {
-  color: #ffd84a;
+  color: #ffc452;
   font-style: italic;
 }
 
 .lp-token-status[data-state="live"] {
-  border-color: rgba(30, 255, 142, 0.4);
-  background: rgba(30, 255, 142, 0.05);
+  border-color: rgba(155, 107, 255, 0.4);
+  background: rgba(155, 107, 255, 0.05);
 }
 .lp-token-status[data-state="live"] code {
-  color: #1eff8e;
+  color: #9b6bff;
   cursor: pointer;
   transition: opacity 0.15s;
 }
