@@ -14,7 +14,7 @@ reference its `DATABASE_URL` from the other services as
 
 ## 2. Web service (the game + API + WebSocket + admin)
 
-This is the service users hit at `trenchlets.fun`.
+This is the service users hit at `boblets.fun`.
 
 **Add the service:**
 
@@ -43,19 +43,19 @@ Railway → New → GitHub Repo → pick `andredco/trenchlets`.
 
 **Custom domain:**
 
-Settings → Networking → Custom Domain → add `trenchlets.fun` and
-`www.trenchlets.fun`. Railway gives you a CNAME target. Set the DNS:
+Settings → Networking → Custom Domain → add `boblets.fun` and
+`www.boblets.fun`. Railway gives you a CNAME target. Set the DNS:
 
-- `www.trenchlets.fun` → CNAME to the target.
-- `trenchlets.fun` (apex) → use ALIAS/ANAME to the target. If your
+- `www.boblets.fun` → CNAME to the target.
+- `boblets.fun` (apex) → use ALIAS/ANAME to the target. If your
   registrar can't, use the A records Railway lists.
 
 **Leave the port field empty.** Railway routes 443 → your `PORT`.
 
 **Smoke test:**
 
-- `https://trenchlets.fun/health` → `{"ok":true,"epoch":0}`
-- `https://trenchlets.fun/admin` → admin shell page.
+- `https://boblets.fun/health` → `{"ok":true,"epoch":0}`
+- `https://boblets.fun/admin` → admin shell page.
 - Open the world page in two different browsers, both should see
   each other walking around.
 
@@ -142,3 +142,4 @@ DATABASE_URL=postgres://... npm start
 The Vite dev server proxies `/api` and `/ws` to the local server if
 you set up a proxy, or just hit the deployed Railway URL for the
 backend while iterating on UI.
+

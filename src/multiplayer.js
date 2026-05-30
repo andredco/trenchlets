@@ -2,7 +2,7 @@
 // Boblets · multiplayer client
 // =========================================================
 // Single WebSocket connection to /ws on the same origin as the
-// page (so trenchlets.fun serves both pages and game). Handles:
+// page (so boblets.fun serves both pages and game). Handles:
 //   • HELLO → WELCOME handshake (wallet OR hardware id)
 //   • Live presence broadcasts (other players walking around)
 //   • Contribution submission with server-side validation

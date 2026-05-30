@@ -41,11 +41,11 @@ In the Trenchlets service's **Variables** tab:
 
 In the service's **Settings → Networking**:
 1. Click **Generate Domain** to get a `*.up.railway.app` for testing.
-2. To use `trenchlets.fun`:
-   - Click **Custom Domain** → enter `trenchlets.fun`
+2. To use `boblets.fun`:
+   - Click **Custom Domain** → enter `boblets.fun`
    - Railway will give you a CNAME target.
    - In your domain registrar's DNS, add a CNAME record pointing
-     `trenchlets.fun` (or `www.trenchlets.fun`) at the Railway target.
+     `boblets.fun` (or `www.boblets.fun`) at the Railway target.
    - Railway provisions Let's Encrypt SSL automatically.
 
 ### 5. Deploy
@@ -61,11 +61,11 @@ The build runs:
 
 After the deploy finishes:
 
-- `https://trenchlets.fun/health` → should return `{ "ok": true, "epoch": <int> }`
-- `https://trenchlets.fun/api/standings` → should return `{ "epoch": <int>, "standings": [] }` (empty until players contribute)
-- `https://trenchlets.fun/` → loads the landing page
+- `https://boblets.fun/health` → should return `{ "ok": true, "epoch": <int> }`
+- `https://boblets.fun/api/standings` → should return `{ "epoch": <int>, "standings": [] }` (empty until players contribute)
+- `https://boblets.fun/` → loads the landing page
 - Open the browser dev tools network tab, navigate to `/world`, and
-  confirm a websocket connects to `wss://trenchlets.fun/ws`
+  confirm a websocket connects to `wss://boblets.fun/ws`
 
 ## Migrations
 
@@ -117,7 +117,7 @@ In Railway service Variables, add:
 |---|---|
 | `ADMIN_TOKEN` | Any long random string. **Keep secret.** |
 
-Redeploy. Visit `https://trenchlets.fun/admin`. Paste the token in the input
+Redeploy. Visit `https://boblets.fun/admin`. Paste the token in the input
 at the top right, click Load. The token is held in `sessionStorage` so it
 persists per browser session but clears on tab close.
 
@@ -166,3 +166,4 @@ convert each holder's USD share into token amounts.
    in the admin dashboard.
 4. Set up a calendar reminder every 6h, or wire a cron job on a separate
    machine that runs the dry run and emails you the table for review.
+
